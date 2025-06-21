@@ -1,8 +1,9 @@
 {
-  "$schema":  "https://raw.githubusercontent.com/jetify-com/devbox/0.13.7/.schema/devbox.schema.json",
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.13.7/.schema/devbox.schema.json",
   "packages": [
     "earthly@latest",
-    "go@1.24.3"
+    "go@1.24.3",
+    "trufflehog@latest"
   ],
   "shell": {
     "init_hook": [
@@ -17,6 +18,9 @@
       ],
       "run": [
         "air"
+      ]
+      "scan": [
+        "trufflehog git ."
       ]
     }
   }

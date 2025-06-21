@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: message_system_db
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      POSTGRES_DB: message_system
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+      POSTGRES_INITDB_ARGS: "--encoding=UTF-8"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d message_system"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: message_system_redis
+    restart: unless-stopped
+    network_mode: "host"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    command: redis-server --appendonly yes
+
+  # Air for hot reload development (optional - run only for development)
+  air:
+    image: cosmtrek/air:latest
+    container_name: message_system_air
+    network_mode: "host"
+    working_dir: /app
+    volumes:
+      - ./:/app
+      - go_mod_cache:/go/pkg/mod
+    environment:
+      # Database Configuration (localhost since using host network)
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_NAME: message_system
+      DB_USER: postgres
+      DB_PASSWORD: postgres123
+      DB_SSL_MODE: disable
+      
+      # Redis Configuration (localhost since using host network)
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ""
+      REDIS_DB: 0
+      
+      # Application Configuration
+      APP_PORT: 8080
+      APP_ENV: development
+      
+      # Webhook Configuration
+      WEBHOOK_URL: "https://webhook.site/<your-unique-id-here>"
+      WEBHOOK_AUTH_KEY: "<your-key-here>"
+      WEBHOOK_TIMEOUT: 30s
+      
+      # Scheduler Configuration
+      SCHEDULER_INTERVAL: 2m
+      SCHEDULER_BATCH_SIZE: 2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    profiles:
+      - dev
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  go_mod_cache:
+    driver: local

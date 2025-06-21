@@ -100,6 +100,54 @@
           "store_path": "/nix/store/5xvi25nqmbrg58aixp4zgczilfnp7pwg-go-1.24.3"
         }
       }
+    },
+    "trufflehog@latest": {
+      "last_modified": "2025-06-12T15:53:38Z",
+      "resolved": "github:NixOS/nixpkgs/8d6cdc7756817e0c4b24567271634a44bcf80752#trufflehog",
+      "source": "devbox-search",
+      "version": "3.89.1",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/30rg87yk7s0b1ai3fkgfl0xk5977c4zw-trufflehog-3.89.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/30rg87yk7s0b1ai3fkgfl0xk5977c4zw-trufflehog-3.89.1"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/71rmpq1cdddb3rs2wczap9zw813g663p-trufflehog-3.89.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/71rmpq1cdddb3rs2wczap9zw813g663p-trufflehog-3.89.1"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/k8rdfrw621z61bhzzvl5xv7gsc3djyij-trufflehog-3.89.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/k8rdfrw621z61bhzzvl5xv7gsc3djyij-trufflehog-3.89.1"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/fk8afmxbyiynkp6s0kwi9s39hzymqh00-trufflehog-3.89.1",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/fk8afmxbyiynkp6s0kwi9s39hzymqh00-trufflehog-3.89.1"
+        }
+      }
     }
   }
 }
