@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"context"
 	"database/sql/driver"
 	"fmt"
 	"time"
@@ -45,30 +44,4 @@ type Message struct {
 	MessageID    *string       `json:"message_id"    gorm:"column:message_id;type:varchar(255)"`
 	ErrorMessage *string       `json:"error_message" gorm:"column:error_message;type:text"`
 	UpdatedAt    *time.Time    `json:"updated_at"    gorm:"column:updated_at;type:timestamptz"`
-}
-
-type MessageUsecase interface {
-	StartAutomatedSending(c context.Context) error
-	StopAutomatedSending(c context.Context) error
-	GetMessagesWithPagination(c context.Context, page int) ([]Message, error)
-}
-
-type MessageRepository interface {
-	Send(c context.Context, message Message) error
-	GetPending(c context.Context, batch int) ([]Message, error)
-	GetSentWithPagination(c context.Context, page int) ([]Message, error)
-}
-
-type NotificationInfrastructure interface {
-	SaveToCache()
-}
-
-type DBInfrastructure interface {
-	SaveToDb()
-	UpdateToDb()
-}
-
-type CacheInfrastructure interface {
-	Write()
-	Get()
 }

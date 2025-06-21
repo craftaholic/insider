@@ -7,12 +7,16 @@ import (
 )
 
 type MessageUsecase struct {
-	messageRepository domain.MessageRepository
+	messageRepository   domain.MessageRepository
+	cacheRepository     domain.CacheRepository
+	notificationService domain.NotificationService
 }
 
-func NewMessageUsecase(messageRepository domain.MessageRepository) domain.MessageUsecase {
+func NewMessageUsecase(messageRepository domain.MessageRepository, cacheRepository domain.CacheRepository, notificationService domain.NotificationService) domain.MessageUsecase {
 	return &MessageUsecase{
-		messageRepository: messageRepository,
+		messageRepository:   messageRepository,
+		cacheRepository:     cacheRepository,
+		notificationService: notificationService,
 	}
 }
 
