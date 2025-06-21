@@ -5,7 +5,8 @@
     "go@1.24.3",
     "trufflehog@latest",
     "air@latest",
-    "golangci-lint@latest"
+    "golangci-lint@latest",
+    "psqlodbc@latest"
   ],
   "shell": {
     "init_hook": [
@@ -29,6 +30,9 @@
       ],
       "down": [
         "docker-compose down"
+      ],
+      "sql": [
+          "docker-compose exec postgres psql -U postgres -d message_system"
       ]
     }
   }

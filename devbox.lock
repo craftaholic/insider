@@ -197,6 +197,54 @@
         }
       }
     },
+    "psqlodbc@latest": {
+      "last_modified": "2025-05-16T20:19:48Z",
+      "resolved": "github:NixOS/nixpkgs/12a55407652e04dcf2309436eb06fef0d3713ef3#psqlodbc",
+      "source": "devbox-search",
+      "version": "17.00.0002",
+      "systems": {
+        "aarch64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/m1ac6plsfmk6l7g9pxw3mmp7smvs0yjr-psqlodbc-17.00.0002",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/m1ac6plsfmk6l7g9pxw3mmp7smvs0yjr-psqlodbc-17.00.0002"
+        },
+        "aarch64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/b54db0amx2vzls59mfzp7nd0mfyh4y21-psqlodbc-17.00.0002",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/b54db0amx2vzls59mfzp7nd0mfyh4y21-psqlodbc-17.00.0002"
+        },
+        "x86_64-darwin": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/9qip2z0m6mhlk2ajfxcfnbqsxw9y3aq1-psqlodbc-17.00.0002",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/9qip2z0m6mhlk2ajfxcfnbqsxw9y3aq1-psqlodbc-17.00.0002"
+        },
+        "x86_64-linux": {
+          "outputs": [
+            {
+              "name": "out",
+              "path": "/nix/store/mrbqxd03lwxmi8px46r3r8njknp44m7g-psqlodbc-17.00.0002",
+              "default": true
+            }
+          ],
+          "store_path": "/nix/store/mrbqxd03lwxmi8px46r3r8njknp44m7g-psqlodbc-17.00.0002"
+        }
+      }
+    },
     "trufflehog@latest": {
       "last_modified": "2025-06-12T15:53:38Z",
       "resolved": "github:NixOS/nixpkgs/8d6cdc7756817e0c4b24567271634a44bcf80752#trufflehog",
