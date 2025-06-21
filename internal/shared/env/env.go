@@ -14,18 +14,8 @@ var Env *EnvConfig
 
 type EnvConfig struct {
 	AppEnv         string
-	ServerAddress  string
 	ContextTimeout int
-	GitToken       string
-	CI             string
-	NATS_URL       string
-
-	GIT_MASTERDATA_REPO_OWNER  string
-	GIT_MASTERDATA_REPO_NAME   string
-	GIT_MASTERDATA_REPO_BRANCH string
-	GIT_RESOURCE_REPO_OWNER    string
-	GIT_RESOURCE_REPO_NAME     string
-	GIT_RESOURCE_REPO_BRANCH   string
+	ServerAddress  string
 }
 
 func LoadEnv() {
@@ -36,18 +26,8 @@ func LoadEnv() {
 
 	env := &EnvConfig{
 		AppEnv:         getEnv("APP_ENV", "development"),
-		ServerAddress:  getEnv("SERVER_ADDRESS", ":8080"),
 		ContextTimeout: getIntEnv("CONTEXT_TIMEOUT", 30),
-		GitToken:       getEnvOrPanic("GIT_TOKEN"), // Required
-		CI:             getEnv("CI_TYPE", "github"),
-		NATS_URL:       getEnv("NATS_URL", "nats://localhost:4222"),
-
-		GIT_MASTERDATA_REPO_OWNER:  getEnvOrPanic("GIT_MASTERDATA_REPO_OWNER"),
-		GIT_MASTERDATA_REPO_NAME:   getEnvOrPanic("GIT_MASTERDATA_REPO_NAME"),
-		GIT_MASTERDATA_REPO_BRANCH: getEnv("GIT_MASTERDATA_REPO_BRANCH", "main"),
-		GIT_RESOURCE_REPO_OWNER:    getEnvOrPanic("GIT_RESOURCE_REPO_OWNER"),
-		GIT_RESOURCE_REPO_NAME:     getEnvOrPanic("GIT_RESOURCE_REPO_NAME"),
-		GIT_RESOURCE_REPO_BRANCH:   getEnv("GIT_RESOURCE_REPO_BRANCH", "main"),
+		ServerAddress:  getEnv("ServerAddress", "8080"),
 	}
 
 	logger.Info("Loaded Config", "AppEnv", env.AppEnv)
