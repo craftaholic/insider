@@ -3,6 +3,8 @@ This project is interview test from Insider
 
 # Assumption
 
+# Analyzing
+
 # Architecture Design
 
 ## Sequence Diagram
