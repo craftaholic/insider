@@ -27,7 +27,7 @@ func LoadEnv() {
 	env := &EnvConfig{
 		AppEnv:         getEnv("APP_ENV", "development"),
 		ContextTimeout: getIntEnv("CONTEXT_TIMEOUT", 30),
-		ServerAddress:  getEnv("ServerAddress", "8080"),
+		ServerAddress:  getEnv("SERVER_ADDR", "8080"),
 	}
 
 	logger.Info("Loaded Config", "AppEnv", env.AppEnv)

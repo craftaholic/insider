@@ -13,7 +13,7 @@ func init() {
 	log.Init()
 	env.LoadEnv()
 
-	log.BaseLogger.Info("Starting the application - Author: Tommy Tran - tranthang.dev@gmail.com")
+	log.BaseLogger.Info("Starting the application - Author: Tommy Tran - tommytrandt.work@gmail.com")
 }
 
 func main() {
@@ -25,6 +25,10 @@ func main() {
 
 	log.BaseLogger.Info("Starting server...", "on port", env.Env.ServerAddress)
 
-	http.ListenAndServe(env.Env.ServerAddress, r)
-}
+	err := http.ListenAndServe(":"+env.Env.ServerAddress, r)
+	if err != nil {
+		log.BaseLogger.Error("Server bootstraping error", "error", err)
+	}
 
+	log.BaseLogger.Info("Stopping server...", "on port", env.Env.ServerAddress)
+}
