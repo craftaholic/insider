@@ -11,7 +11,6 @@ import (
 	"gorm.io/gorm"
 	gormlog "gorm.io/gorm/logger"
 
-	// "github.com/craftaholic/insider/internal/shared/env".
 	"github.com/craftaholic/insider/internal/shared/config"
 	"github.com/craftaholic/insider/internal/shared/log"
 )
@@ -37,7 +36,7 @@ func App() Application {
 		config.Env.DBPassword,
 		config.Env.DBName,
 		config.Env.DBPort,
-		config.Env.DBSslMode
+		config.Env.DBSslMode,
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
@@ -52,7 +51,7 @@ func App() Application {
 		Addr: fmt.Sprintf(
 			"%s:%s",
 			config.Env.RedisHost,
-			config.Env.RedisPort
+			config.Env.RedisPort,
 		),
 	})
 
