@@ -1,0 +1,46 @@
+erDiagram
+    MESSAGES {
+        BIGSERIAL id PK "Primary Key"
+        VARCHAR(20) phone_number "NOT NULL, International format"
+        TEXT content "NOT NULL, Message content"
+        VARCHAR(20) status "DEFAULT 'pending', CHECK constraint"
+        TIMESTAMP created_at "DEFAULT CURRENT_TIMESTAMP"
+        TIMESTAMP sent_at "NULL, When message was sent"
+        VARCHAR(255) message_id "NULL, Webhook response UUID"
+        TEXT error_message "NULL, Error details if failed"
+    }
+
+    SENT_MESSAGES_VIEW {
+        BIGINT id "From messages table"
+        VARCHAR(20) phone_number "Phone number"
+        TEXT content "Message content"
+        VARCHAR(20) status "Always 'sent'"
+        TIMESTAMP created_at "Creation time"
+        TIMESTAMP sent_at "Sent time"
+        VARCHAR(255) message_id "Webhook UUID"
+        NUMERIC processing_time_seconds "Calculated field"
+    }
+
+    INDEXES {
+        STRING idx_messages_status_created "status, created_at"
+        STRING idx_messages_phone_number "phone_number"
+        STRING idx_messages_message_id "message_id"
+        STRING idx_messages_sent_at "sent_at"
+    }
+
+    FUNCTIONS {
+        STRING get_unsent_messages "batch_size INTEGER DEFAULT 2"
+    }
+
+    MESSAGES ||--o{ SENT_MESSAGES_VIEW : "filtered_view"
+    MESSAGES ||--|| INDEXES : "performance_optimization"
+    MESSAGES ||--|| FUNCTIONS : "business_logic"
+
+    %% Status values constraint
+    MESSAGES ||--|| STATUS_VALUES : "check_constraint"
+    
+    STATUS_VALUES {
+        STRING pending "Default state"
+        STRING sent "Successfully delivered"
+        STRING failed "Delivery failed"
+    }

@@ -5,6 +5,10 @@ This project is interview test from Insider
 
 # Architecture Design
 
+## Sequence Diagram
+
+## DB design
+
 # Code Structure
 
 # How to setup
