@@ -1,6 +1,7 @@
 package bootstrap
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/craftaholic/insider/internal/controller"
@@ -40,7 +41,7 @@ func App() Application {
 	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: gormlog.Default.LogMode(gormlog.Info),
+		Logger: gormlog.Default.LogMode(gormlog.Error),
 	})
 	if err != nil {
 		logger.Fatal("Failed to connect to database:", err)
@@ -66,6 +67,12 @@ func App() Application {
 	// Init Controller
 	app.HealthController = controller.NewHealthController()
 	app.MessageController = controller.NewMessageController(messageUsecase)
+
+	// Start the automation for sending message
+	err = messageUsecase.StartAutomatedSending(context.Background())
+	if err != nil {
+		logger.Fatal("Error starting automated sending function")
+	}
 
 	return *app
 }
