@@ -16,7 +16,7 @@ type ZapLogger struct {
 	logger *zap.Logger
 }
 
-// Get initializes a zap.Logger instance if it has not been initialized
+// Init a zap.Logger instance if it has not been initialized
 // already and returns the same instance for subsequent calls.
 func Init() {
 	// Check if the logger is already initialized
@@ -75,8 +75,8 @@ func Init() {
 func (l *ZapLogger) FromCtx(ctx context.Context) Log {
 	// Check if the logger is already attached to the context
 	// If it is, return the logger
-	if l, ok := ctx.Value(ctxKey{}).(*ZapLogger); ok {
-		return l
+	if newLogger, ok := ctx.Value(ctxKey{}).(*ZapLogger); ok {
+		return newLogger
 	}
 
 	// If the logger is not attached to the context, return the no-op logger
@@ -98,7 +98,7 @@ func (l *ZapLogger) WithCtx(ctx context.Context) context.Context {
 	return context.WithValue(ctx, ctxKey{}, l)
 }
 
-// WithFields returns a new ZapLogger with extra fields
+// WithFields returns a new ZapLogger with extra fields.
 func (l *ZapLogger) WithFields(fields ...any) Log {
 	s := l.logger.Sugar().With(fields...)
 	return &ZapLogger{logger: s.Desugar()}

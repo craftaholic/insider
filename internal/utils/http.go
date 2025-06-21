@@ -4,7 +4,7 @@ import (
 	"github.com/go-resty/resty/v2"
 )
 
-// Get function to send a GET request
+// Get function to send a GET request.
 func Get(resty *resty.Client, authorizeToken string, body []byte, url string) (*resty.Response, error) {
 	resp, err := resty.R().
 		SetHeader("Authorization", "Bearer "+authorizeToken).
@@ -19,7 +19,7 @@ func Get(resty *resty.Client, authorizeToken string, body []byte, url string) (*
 	return resp, nil
 }
 
-// Post function to send POST request
+// Post function to send POST request.
 func Post(resty *resty.Client, authorizeToken string, body []byte, url string) (*resty.Response, error) {
 	resp, err := resty.R().
 		SetHeader("Authorization", "Bearer "+authorizeToken).
@@ -34,7 +34,7 @@ func Post(resty *resty.Client, authorizeToken string, body []byte, url string) (
 	return resp, nil
 }
 
-// Wrapper function to retry the operation
+// Retry wrapper function to retry the operation.
 func Retry(operation func() (*resty.Response, error)) (*resty.Response, error) {
 	var resp *resty.Response
 	var err error

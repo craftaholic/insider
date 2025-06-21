@@ -1,5 +1,5 @@
 package utils
 
-func JsonError(message string) string {
+func JSONError(message string) string {
 	return `{"message": "` + message + `"}`
 }

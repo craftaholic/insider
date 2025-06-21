@@ -39,10 +39,5 @@ func SetupRoute(app bootstrap.Application) *chi.Mux {
 		NewHealthRouter(r, app.HealthController)
 	})
 
-	// Protected routes
-	r.Group(func(r chi.Router) {
-		// r.Use(middleware.JwtAuthMiddleware(env.AccessTokenSecret))
-	})
-
 	return r
 }

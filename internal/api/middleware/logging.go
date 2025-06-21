@@ -9,10 +9,10 @@ import (
 
 func LoggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		requestId, _ := utils.GenerateUUIDv7()
+		requestID, _ := utils.GenerateUUIDv7()
 		logger := log.BaseLogger.WithFields(
 			"request_id",
-			requestId,
+			requestID,
 			"remote_addr",
 			r.RemoteAddr,
 			"method",

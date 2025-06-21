@@ -8,4 +8,3 @@ import (
 func NewHealthRouter(router chi.Router, hc *controller.HealthController) {
 	router.Get("/health", hc.HealthCheck)
 }
-

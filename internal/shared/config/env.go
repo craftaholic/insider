@@ -1,4 +1,4 @@
-package env
+package config
 
 import (
 	"os"
@@ -34,7 +34,7 @@ func LoadEnv() {
 	Env = env
 }
 
-// getEnv gets an environment variable or returns a default value
+// getEnv gets an environment variable or returns a default value.
 func getEnv(key, defaultVal string) string {
 	if val := os.Getenv(key); val != "" {
 		return val
@@ -51,7 +51,7 @@ func getIntEnv(key string, defaultVal int) int {
 	return defaultVal
 }
 
-// getEnvOrPanic gets an environment variable or panics if not set
+// getEnvOrPanic gets an environment variable or panics if not set.
 func getEnvOrPanic(key string) string {
 	if val := os.Getenv(key); val != "" {
 		return val
