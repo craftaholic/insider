@@ -42,7 +42,7 @@ func (mu *MessageUsecase) StartAutomatedSending(ctx context.Context) error {
 	}
 
 	// Create worker pool
-	mu.workerPool = newWorkerPool(context.Background(), 5) // 5 concurrent workers
+	mu.workerPool = newWorkerPool(ctx, 5) // 5 concurrent workers
 	mu.workerPool.Start(mu.processSingleMessage)
 
 	// Start message fetcher
@@ -53,7 +53,7 @@ func (mu *MessageUsecase) StartAutomatedSending(ctx context.Context) error {
 }
 
 func (mu *MessageUsecase) messageFetcher(ctx context.Context) {
-	ticker := time.NewTicker(30 * time.Second)
+	ticker := time.NewTicker(3 * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -61,13 +61,15 @@ func (mu *MessageUsecase) messageFetcher(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			messages, err := mu.messageRepository.GetPending(ctx, 2)
-			if err != nil {
-				continue
-			}
+			if mu.isRunning {
+				messages, err := mu.messageRepository.GetPending(ctx, 2)
+				if err != nil {
+					continue
+				}
 
-			for _, message := range messages {
-				mu.workerPool.AddJob(message)
+				for _, message := range messages {
+					mu.workerPool.AddJob(message)
+				}
 			}
 		}
 	}

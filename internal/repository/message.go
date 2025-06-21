@@ -49,9 +49,7 @@ func (r *messageRepository) GetPending(ctx context.Context, batch int) ([]domain
 	var messages []domain.Message
 
 	err := r.db.WithContext(ctx).
-		Where("status = ?", domain.StatusPending).
-		Limit(batch).
-		Order("created_at ASC").
+		Raw("SELECT * FROM get_unsent_messages(?)", batch).
 		Find(&messages).Error
 
 	if err != nil {
