@@ -11,6 +11,12 @@
     "scripts": {
       "test": [
         "echo \"Error: no test specified\" && exit 1"
+      ],
+      "lint": [
+        "golangci-lint run --fix"
+      ],
+      "run": [
+        "air"
       ]
     }
   }
