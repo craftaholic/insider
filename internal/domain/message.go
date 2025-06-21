@@ -30,8 +30,8 @@ func (ms *MessageStatus) Scan(value any) error {
 }
 
 // Value implements the driver.Valuer interface for database writes.
-func (ms MessageStatus) Value() (driver.Value, error) {
-	return string(ms), nil
+func (ms *MessageStatus) Value() (driver.Value, error) {
+	return ms, nil
 }
 
 type Message struct {
@@ -46,17 +46,14 @@ type Message struct {
 	UpdatedAt    *time.Time    `json:"updated_at"    gorm:"column:updated_at;type:timestamptz"`
 }
 
-// TableName specifies the table name.
-func (Message) TableName() string {
-	return "messages"
-}
-
 type MessageUsecase interface {
 	Send(message Message)
+	GetPendingMessages(batch int) []Message
 	GetWithPagination(page int) []Message
 }
 
 type MessageRepository interface {
 	Send(message Message)
+	GetPendingMessages(batch int) []Message
 	GetWithPagination(page int) []Message
 }
