@@ -18,7 +18,7 @@ func NewMessageRepository(db *gorm.DB) domain.MessageRepository {
 	}
 }
 
-func (r *messageRepository) Send(ctx context.Context, message domain.Message) error {
+func (r *messageRepository) Update(ctx context.Context, id uint64, message domain.Message) error {
 	// TODO: update this to interact with infra layer for sending instead
 	// then update to db
 	if message.PhoneNumber == "" {

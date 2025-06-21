@@ -30,8 +30,6 @@ func NewMessageUsecase(
 		messageRepository:   messageRepository,
 		cacheRepository:     cacheRepository,
 		notificationService: notificationService,
-
-		mu: sync.RWMutex{},
 	}
 }
 
@@ -74,7 +72,15 @@ func (mu *MessageUsecase) messageFetcher(c context.Context) {
 
 				for _, message := range messages {
 					log.FromCtx(c).Info("Fetching", "message", message.ID)
-					mu.workerPool.AddJob(message)
+					succeed := mu.workerPool.AddJob(message)
+					// If can't add job to queue -> convert the status
+					if !succeed {
+						message.Status = "pending"
+						err = mu.messageRepository.Update(c, message.ID, message)
+						if err != nil {
+							log.FromCtx(c).Error("Error changing status of message back to pending", "message", message.ID)
+						}
+					}
 				}
 			}
 		}

@@ -13,9 +13,9 @@ CREATE TABLE IF NOT EXISTS messages (
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_messages_status_created ON messages (status, created_at);
 CREATE INDEX IF NOT EXISTS idx_messages_phone_number ON messages (phone_number);
-CREATE INDEX IF NOT EXISTS idx_messages_message_id ON messages (message_id);
-CREATE INDEX IF NOT EXISTS idx_messages_sent_at ON messages (sent_at);
-CREATE INDEX IF NOT EXISTS idx_messages_updated_at ON messages (updated_at);
+-- CREATE INDEX IF NOT EXISTS idx_messages_message_id ON messages (message_id);
+-- CREATE INDEX IF NOT EXISTS idx_messages_sent_at ON messages (sent_at);
+-- CREATE INDEX IF NOT EXISTS idx_messages_updated_at ON messages (updated_at);
 CREATE INDEX IF NOT EXISTS idx_messages_processing_stuck ON messages (status, updated_at) WHERE status = 'processing';
 
 -- Insert sample data for testing
@@ -43,32 +43,6 @@ SELECT
 FROM messages 
 WHERE status = 'sent'
 ORDER BY sent_at DESC;
-
--- Create a view for monitoring processing messages
-CREATE VIEW processing_messages AS 
-SELECT 
-    id,
-    phone_number,
-    content,
-    created_at,
-    updated_at,
-    EXTRACT(EPOCH FROM (NOW() - updated_at)) as seconds_processing
-FROM messages 
-WHERE status = 'processing'
-ORDER BY updated_at ASC;
-
--- Create a view for stuck messages (processing > 10 minutes)
-CREATE VIEW stuck_messages AS 
-SELECT 
-    id,
-    phone_number,
-    content,
-    updated_at,
-    EXTRACT(EPOCH FROM (NOW() - updated_at)) as stuck_duration_seconds
-FROM messages 
-WHERE status = 'processing' 
-  AND updated_at < NOW() - INTERVAL '10 minutes'
-ORDER BY updated_at ASC;
 
 -- Function for getting_unsent_messages atomicly  
 -- (For avoid the go application getting the same messages)
@@ -142,91 +116,5 @@ BEGIN
     
     GET DIAGNOSTICS affected_count = ROW_COUNT;
     RETURN affected_count;
-END;
-$$ LANGUAGE plpgsql;
-
--- Function to get processing statistics
-CREATE OR REPLACE FUNCTION get_processing_stats()
-RETURNS TABLE (
-    total_messages BIGINT,
-    pending_count BIGINT,
-    processing_count BIGINT,
-    sent_count BIGINT,
-    failed_count BIGINT,
-    stuck_count BIGINT,
-    avg_processing_seconds NUMERIC
-) AS $$
-BEGIN
-    RETURN QUERY
-    SELECT 
-        COUNT(*) as total_messages,
-        COUNT(*) FILTER (WHERE status = 'pending') as pending_count,
-        COUNT(*) FILTER (WHERE status = 'processing') as processing_count,
-        COUNT(*) FILTER (WHERE status = 'sent') as sent_count,
-        COUNT(*) FILTER (WHERE status = 'failed') as failed_count,
-        COUNT(*) FILTER (WHERE status = 'processing' AND updated_at < NOW() - INTERVAL '10 minutes') as stuck_count,
-        AVG(EXTRACT(EPOCH FROM (NOW() - updated_at))) FILTER (WHERE status = 'processing') as avg_processing_seconds
-    FROM messages;
-END;
-$$ LANGUAGE plpgsql;
-
--- Create a scheduler status table for tracking system state
-CREATE TABLE IF NOT EXISTS scheduler_status (
-    id SERIAL PRIMARY KEY,
-    is_running BOOLEAN DEFAULT FALSE,
-    started_at TIMESTAMP WITH TIME ZONE NULL,
-    stopped_at TIMESTAMP WITH TIME ZONE NULL,
-    last_run_at TIMESTAMP WITH TIME ZONE NULL,
-    last_cleanup_at TIMESTAMP WITH TIME ZONE NULL,
-    messages_processed INTEGER DEFAULT 0,
-    total_sent INTEGER DEFAULT 0,
-    total_failed INTEGER DEFAULT 0,
-    total_stuck_reset INTEGER DEFAULT 0
-);
-
--- Insert initial scheduler status record
-INSERT INTO scheduler_status (id, is_running) VALUES (1, FALSE)
-ON CONFLICT (id) DO NOTHING;
-
--- Function to update scheduler status
-CREATE OR REPLACE FUNCTION update_scheduler_status(
-    running BOOLEAN,
-    processed INTEGER DEFAULT 0,
-    sent INTEGER DEFAULT 0,
-    failed INTEGER DEFAULT 0
-) RETURNS VOID AS $$
-BEGIN
-    UPDATE scheduler_status 
-    SET 
-        is_running = running,
-        started_at = CASE WHEN running AND NOT is_running THEN NOW() ELSE started_at END,
-        stopped_at = CASE WHEN NOT running AND is_running THEN NOW() ELSE stopped_at END,
-        last_run_at = CASE WHEN processed > 0 THEN NOW() ELSE last_run_at END,
-        messages_processed = messages_processed + processed,
-        total_sent = total_sent + sent,
-        total_failed = total_failed + failed
-    WHERE id = 1;
-END;
-$$ LANGUAGE plpgsql;
-
--- Cleanup function to be run periodically
-CREATE OR REPLACE FUNCTION cleanup_stuck_messages()
-RETURNS INTEGER AS $$
-DECLARE
-    reset_count INTEGER;
-BEGIN
-    -- Reset stuck messages
-    SELECT reset_stuck_messages(10) INTO reset_count;
-    
-    -- Update scheduler status
-    IF reset_count > 0 THEN
-        UPDATE scheduler_status 
-        SET 
-            last_cleanup_at = NOW(),
-            total_stuck_reset = total_stuck_reset + reset_count
-        WHERE id = 1;
-    END IF;
-    
-    RETURN reset_count;
 END;
 $$ LANGUAGE plpgsql;

@@ -6,7 +6,7 @@ import (
 )
 
 type MessageRepository interface {
-	Send(c context.Context, message Message) error
+	Update(c context.Context, id uint64, message Message) error
 	GetPending(c context.Context, batch int) ([]Message, error)
 	GetSentWithPagination(c context.Context, page int) ([]Message, error)
 }

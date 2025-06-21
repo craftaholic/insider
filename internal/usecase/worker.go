@@ -62,13 +62,15 @@ func (wp *WorkerPool) Start(processor func(context.Context, domain.Message) erro
 // AddJob will continue add job to the jobChan buffer
 // if there is a cancel signal event -> stop receiving
 // new message.
-func (wp *WorkerPool) AddJob(message domain.Message) {
+func (wp *WorkerPool) AddJob(message domain.Message) bool {
 	select {
 	// Always check the context first to
 	case <-wp.ctx.Done():
-		return
+		return false
 	case wp.jobChan <- message:
-		// Adding into waitgroup
+		return true
+	default:
+		return false
 	}
 }
 
