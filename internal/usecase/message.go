@@ -16,6 +16,7 @@ type MessageUsecase struct {
 	notificationService domain.NotificationService
 
 	workerPool *WorkerPool
+	cancel     context.CancelFunc
 	isRunning  bool
 	mu         sync.RWMutex
 }
@@ -42,12 +43,15 @@ func (mu *MessageUsecase) StartAutomatedSending(c context.Context) error {
 		return errors.New("automated sending is already running")
 	}
 
+	serviceCtx, cancel := context.WithCancel(c)
+	mu.cancel = cancel
+
 	// Create worker pool
 	mu.workerPool = newWorkerPool(c, 5) // 5 concurrent workers
 	mu.workerPool.Start(mu.processSingleMessage)
 
 	// Start message fetcher
-	go mu.messageFetcher(c)
+	go mu.messageFetcher(serviceCtx)
 
 	mu.isRunning = true
 	return nil
@@ -90,6 +94,7 @@ func (mu *MessageUsecase) StopAutomatedSending(ctx context.Context) error {
 	}
 
 	mu.isRunning = false
+	mu.cancel()
 	return nil
 }
 

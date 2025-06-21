@@ -30,9 +30,9 @@ func newWorkerPool(ctx context.Context, workerCount int) *WorkerPool {
 // Start will create multiple workers each runs in
 // 1 go routines. Each of these workers will handle
 // 1 message from the db (every 2 mins there will
-// be new messages sent into the channel)
+// be new messages sent into the channel).
 func (wp *WorkerPool) Start(processor func(context.Context, domain.Message) error) {
-	for i := 0; i < wp.workerCount; i++ {
+	for i := range wp.workerCount {
 		wp.wg.Add(1)
 		go func(workerID int) {
 			defer wp.wg.Done()
@@ -73,7 +73,7 @@ func (wp *WorkerPool) AddJob(message domain.Message) {
 }
 
 // Stop function will send a signal event to the context
-// that's being used to stop receiving all new messages
+// that's being used to stop receiving all new messages.
 func (wp *WorkerPool) Stop() {
 	wp.cancel()
 	wp.wg.Wait()
@@ -81,7 +81,7 @@ func (wp *WorkerPool) Stop() {
 
 // Close function close the channel, this is to spit it
 // away from the Stop function so it will avoid having a
-// potential race condition
+// potential race condition.
 func (wp *WorkerPool) Close() {
 	wp.wg.Wait()
 	close(wp.jobChan)
