@@ -58,7 +58,7 @@ func LoadEnv() {
 		DBHost:     getEnv("DB_HOST", "localhost"),
 		DBPort:     getEnv("DB_PORT", "5432"),
 		DBName:     getEnv("DB_NAME", "message_system"),
-		DBUser:     getEnv("DB_USER", "posgres"),
+		DBUser:     getEnv("DB_USER", "postgres"),
 		DBPassword: getEnv("DB_PASSWORD", "postgres123"),
 		DBSslMode:  getEnv("DB_SSL_MODE", "disable"),
 
@@ -70,7 +70,7 @@ func LoadEnv() {
 
 		// Notification service
 		WebhookURL:     getEnvOrPanic("WEBHOOK_URL"),
-		WebhookAuthKey: getEnvOrPanic("WEBHOOK_URL"),
+		WebhookAuthKey: getEnvOrPanic("WEBHOOK_AUTH_KEY"),
 		WebhookTimeout: getIntEnv("WEBHOOK_TIMEOUT", 30),
 
 		// Concurency config
