@@ -65,7 +65,7 @@ services:
   #     # Webhook Configuration
   #     WEBHOOK_URL: "https://webhook.site/<your-unique-id-here>"
   #     WEBHOOK_AUTH_KEY: "<your-key-here>"
-  #     WEBHOOK_TIMEOUT: 30s
+  #     WEBHOOK_TIMEOUT: 30
   #
   #     # Scheduler Configuration
   #     SCHEDULER_INTERVAL: 2m

@@ -1,6 +1,8 @@
 package bootstrap
 
 import (
+	"fmt"
+
 	"github.com/craftaholic/insider/internal/controller"
 	"github.com/craftaholic/insider/internal/repository"
 	"github.com/craftaholic/insider/internal/usecase"
@@ -9,7 +11,8 @@ import (
 	"gorm.io/gorm"
 	gormlog "gorm.io/gorm/logger"
 
-	// "github.com/craftaholic/insider/internal/shared/env"
+	// "github.com/craftaholic/insider/internal/shared/env".
+	"github.com/craftaholic/insider/internal/shared/config"
 	"github.com/craftaholic/insider/internal/shared/log"
 )
 
@@ -27,7 +30,15 @@ func App() Application {
 
 	// Init Infra Layer
 	// Init DB conection
-	dsn := "host=localhost user=postgres password=postgres123 dbname=message_system port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+	dsn := fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
+		config.Env.DBHost,
+		config.Env.DBUser,
+		config.Env.DBPassword,
+		config.Env.DBName,
+		config.Env.DBPort,
+		config.Env.DBSslMode
+	)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: gormlog.Default.LogMode(gormlog.Info),
@@ -38,13 +49,17 @@ func App() Application {
 
 	// Init Redis client
 	redisClient := redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
+		Addr: fmt.Sprintf(
+			"%s:%s",
+			config.Env.RedisHost,
+			config.Env.RedisPort
+		),
 	})
 
 	// Init Repository Layer
 	messageRepository := repository.NewMessageRepository(db)
 	cacheRepository := repository.NewCacheRepository(redisClient)
-	notificationService := repository.NewNotificationService("", "")
+	notificationService := repository.NewNotificationService(config.Env.WebhookAuthKey, config.Env.WebhookURL)
 
 	// Init Usecase Layer
 	messageUsecase := usecase.NewMessageUsecase(messageRepository, cacheRepository, notificationService)

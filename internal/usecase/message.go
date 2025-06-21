@@ -12,7 +12,11 @@ type MessageUsecase struct {
 	notificationService domain.NotificationService
 }
 
-func NewMessageUsecase(messageRepository domain.MessageRepository, cacheRepository domain.CacheRepository, notificationService domain.NotificationService) domain.MessageUsecase {
+func NewMessageUsecase(
+	messageRepository domain.MessageRepository,
+	cacheRepository domain.CacheRepository,
+	notificationService domain.NotificationService,
+) domain.MessageUsecase {
 	return &MessageUsecase{
 		messageRepository:   messageRepository,
 		cacheRepository:     cacheRepository,

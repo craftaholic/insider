@@ -14,9 +14,33 @@ var logger log.Log
 var Env *EnvConfig
 
 type EnvConfig struct {
+	// App config
 	AppEnv         string
 	ContextTimeout int
 	ServerAddress  string
+
+	// DB config
+	DBHost     string
+	DBPort     string
+	DBName     string
+	DBUser     string
+	DBPassword string
+	DBSslMode  string
+
+	// Redis config
+	RedisHost     string
+	RedisPort     string
+	RedisPassword string
+	RedisDB       string
+
+	// Notification service
+	WebhookURL     string
+	WebhookAuthKey string
+	WebhookTimeout int
+
+	// Concurency config
+	MessageBatchNumber  int
+	MessageCronDuration int
 }
 
 func LoadEnv() {
@@ -29,6 +53,29 @@ func LoadEnv() {
 		AppEnv:         getEnv("APP_ENV", "development"),
 		ContextTimeout: getIntEnv("CONTEXT_TIMEOUT", constant.DefaultContextTimeOut),
 		ServerAddress:  getEnv("SERVER_ADDR", "8080"),
+
+		// DB config
+		DBHost:     getEnv("DB_HOST", "localhost"),
+		DBPort:     getEnv("DB_PORT", "5432"),
+		DBName:     getEnv("DB_NAME", "message_system"),
+		DBUser:     getEnv("DB_USER", "posgres"),
+		DBPassword: getEnv("DB_PASSWORD", "postgres123"),
+		DBSslMode:  getEnv("DB_SSL_MODE", "disable"),
+
+		// Redis config
+		RedisHost:     getEnv("REDIS_HOST", "localhost"),
+		RedisPort:     getEnv("REDIS_PORT", "6379"),
+		RedisPassword: getEnv("REDIS_PASSWORD", ""),
+		RedisDB:       getEnv("REDIS_DB", "0"),
+
+		// Notification service
+		WebhookURL:     getEnvOrPanic("WEBHOOK_URL"),
+		WebhookAuthKey: getEnvOrPanic("WEBHOOK_URL"),
+		WebhookTimeout: getIntEnv("WEBHOOK_TIMEOUT", 30),
+
+		// Concurency config
+		MessageBatchNumber:  getIntEnv("MESSAGE_BATCH_NUMBER", 2),
+		MessageCronDuration: getIntEnv("MESSAGE_BATCH_NUMBER", 120),
 	}
 
 	logger.Info("Loaded Config", "AppEnv", env.AppEnv)
