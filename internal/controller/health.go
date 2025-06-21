@@ -14,7 +14,7 @@ func NewHealthController() *HealthController {
 }
 
 func (hc *HealthController) HealthCheck(w http.ResponseWriter, r *http.Request) {
-	logger := log.BaseLogger.FromCtx(r.Context()).WithFields("controller", utils.GetStructName(hc))
+	logger := log.FromCtx(r.Context()).WithFields("controller", utils.GetStructName(hc))
 	logger.Info("Processing health check request")
 
 	w.WriteHeader(http.StatusOK)

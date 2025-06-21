@@ -9,8 +9,6 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
-type ctxKey struct{}
-
 type ZapLogger struct {
 	logger *zap.Logger
 }
