@@ -24,8 +24,11 @@
       "scan": [
         "trufflehog git file://. --results=verified,unknown"
       ],
-      "dev": [
+      "up": [
         "docker-compose up -d"
+      ],
+      "down": [
+        "docker-compose down"
       ]
     }
   }
