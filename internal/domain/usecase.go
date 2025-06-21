@@ -7,5 +7,5 @@ import (
 type MessageUsecase interface {
 	StartAutomatedSending(c context.Context) error
 	StopAutomatedSending(c context.Context) error
-	GetMessagesWithPagination(c context.Context, page int) ([]Message, error)
+	GetSentMessagesWithPagination(c context.Context, page int) ([]Message, error)
 }

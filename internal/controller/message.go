@@ -61,3 +61,27 @@ func (mc *MessageController) Stop(w http.ResponseWriter, r *http.Request) {
 
 	logger.Info("Finished start automated sending message request")
 }
+
+func (mc *MessageController) GetSentMessagesWithPagination(w http.ResponseWriter, r *http.Request) {
+	logger := log.FromCtx(r.Context()).WithFields("controller", utils.GetStructName(mc))
+	logger.Info("Starting automated sending message")
+	ctx := logger.WithCtx(r.Context())
+
+	messages, err := mc.MessageUsecase.GetSentMessagesWithPagination(ctx, 1)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger.Error("Request handled failed", "error", err.Error())
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	// TODO: handle this return
+	_, err = w.Write([]byte(messages[0].Content))
+	if err != nil {
+		logger.Error("Failed writing response", "error", err)
+	}
+
+	logger.Info("Finished start automated sending message request")
+}

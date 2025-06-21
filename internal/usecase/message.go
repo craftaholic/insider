@@ -28,6 +28,6 @@ func (mu *MessageUsecase) StopAutomatedSending(c context.Context) error {
 	return nil
 }
 
-func (mu *MessageUsecase) GetMessagesWithPagination(c context.Context, page int) ([]domain.Message, error) {
+func (mu *MessageUsecase) GetSentMessagesWithPagination(c context.Context, page int) ([]domain.Message, error) {
 	return []domain.Message{}, nil
 }

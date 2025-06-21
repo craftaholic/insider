@@ -47,6 +47,7 @@ func SetupRoute(app bootstrap.Application) *chi.Mux {
 	// Public APIs
 	r.Group(func(r chi.Router) {
 		NewHealthRouter(r, app.HealthController)
+		NewMessageRouter(r, app.MessageController)
 	})
 
 	return r
