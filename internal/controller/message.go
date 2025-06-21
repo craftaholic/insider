@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/craftaholic/insider/internal/domain"
@@ -21,9 +22,8 @@ func NewMessageController(messageUsecase domain.MessageUsecase) *MessageControll
 func (mc *MessageController) Start(w http.ResponseWriter, r *http.Request) {
 	logger := log.FromCtx(r.Context()).WithFields("controller", utils.GetStructName(mc))
 	logger.Info("Starting automated sending message")
-	ctx := logger.WithCtx(r.Context())
 
-	err := mc.MessageUsecase.StartAutomatedSending(ctx)
+	err := mc.MessageUsecase.StartAutomatedSending(context.Background())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger.Error("Request handled failed", "error", err.Error())

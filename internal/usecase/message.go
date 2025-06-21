@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/craftaholic/insider/internal/domain"
+	"github.com/craftaholic/insider/internal/shared/log"
 )
 
 type MessageUsecase struct {
@@ -33,7 +34,7 @@ func NewMessageUsecase(
 	}
 }
 
-func (mu *MessageUsecase) StartAutomatedSending(ctx context.Context) error {
+func (mu *MessageUsecase) StartAutomatedSending(c context.Context) error {
 	mu.mu.Lock()
 	defer mu.mu.Unlock()
 
@@ -42,27 +43,28 @@ func (mu *MessageUsecase) StartAutomatedSending(ctx context.Context) error {
 	}
 
 	// Create worker pool
-	mu.workerPool = newWorkerPool(ctx, 5) // 5 concurrent workers
+	mu.workerPool = newWorkerPool(c, 5) // 5 concurrent workers
 	mu.workerPool.Start(mu.processSingleMessage)
 
 	// Start message fetcher
-	go mu.messageFetcher(ctx)
+	go mu.messageFetcher(c)
 
 	mu.isRunning = true
 	return nil
 }
 
-func (mu *MessageUsecase) messageFetcher(ctx context.Context) {
+func (mu *MessageUsecase) messageFetcher(c context.Context) {
 	ticker := time.NewTicker(3 * time.Second)
 	defer ticker.Stop()
 
 	for {
 		select {
-		case <-ctx.Done():
+		case <-c.Done():
 			return
 		case <-ticker.C:
+			log.FromCtx(c).Info("Fetching")
 			if mu.isRunning {
-				messages, err := mu.messageRepository.GetPending(ctx, 2)
+				messages, err := mu.messageRepository.GetPending(c, 2)
 				if err != nil {
 					continue
 				}
@@ -96,5 +98,6 @@ func (mu *MessageUsecase) GetSentMessagesWithPagination(c context.Context, page 
 }
 
 func (mu *MessageUsecase) processSingleMessage(c context.Context, message domain.Message) error {
+	log.FromCtx(c).Info("Processing", "message", message.ID)
 	return nil
 }
