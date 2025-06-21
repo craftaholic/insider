@@ -62,7 +62,6 @@ func (mu *MessageUsecase) messageFetcher(c context.Context) {
 		case <-c.Done():
 			return
 		case <-ticker.C:
-			log.FromCtx(c).Info("Fetching")
 			if mu.isRunning {
 				messages, err := mu.messageRepository.GetPending(c, 2)
 				if err != nil {
@@ -70,6 +69,7 @@ func (mu *MessageUsecase) messageFetcher(c context.Context) {
 				}
 
 				for _, message := range messages {
+					log.FromCtx(c).Info("Fetching", "message", message.ID)
 					mu.workerPool.AddJob(message)
 				}
 			}
