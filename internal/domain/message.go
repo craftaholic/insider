@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"database/sql/driver"
 	"fmt"
 	"time"
@@ -47,13 +48,27 @@ type Message struct {
 }
 
 type MessageUsecase interface {
-	Send(message Message)
-	GetPendingMessages(batch int) []Message
-	GetWithPagination(page int) []Message
+	StartAutomatedSending(c context.Context) error
+	StopAutomatedSending(c context.Context) error
+	GetMessagesWithPagination(c context.Context, page int) ([]Message, error)
 }
 
 type MessageRepository interface {
-	Send(message Message)
-	GetPendingMessages(batch int) []Message
-	GetWithPagination(page int) []Message
+	Send(c context.Context, message Message) error
+	GetPending(c context.Context, batch int) ([]Message, error)
+	GetSentWithPagination(c context.Context, page int) ([]Message, error)
+}
+
+type NotificationInfrastructure interface {
+	SaveToCache()
+}
+
+type DBInfrastructure interface {
+	SaveToDb()
+	UpdateToDb()
+}
+
+type CacheInfrastructure interface {
+	Write()
+	Get()
 }
