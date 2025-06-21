@@ -2,8 +2,7 @@ package log
 
 import (
 	"context"
-	"fmt"
-	"log"
+	"errors"
 	"os"
 
 	"go.uber.org/zap"
@@ -22,7 +21,7 @@ func Init() {
 	// Check if the logger is already initialized
 	if BaseLogger != nil {
 		BaseLogger.DPanic("Base Global Logger is already initialized")
-		return
+		panic(errors.New("base global logger is already initialized"))
 	}
 
 	var logger *zap.Logger
@@ -36,9 +35,7 @@ func Init() {
 	if levelEnv != "" {
 		levelFromEnv, err := zapcore.ParseLevel(levelEnv)
 		if err != nil {
-			log.Println(
-				fmt.Errorf("invalid level, defaulting to INFO: %w", err),
-			)
+			panic(err)
 		}
 
 		level = levelFromEnv

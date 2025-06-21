@@ -18,6 +18,9 @@ func (hc *HealthController) HealthCheck(w http.ResponseWriter, r *http.Request) 
 	logger.Info("Processing health check request")
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	_, err := w.Write([]byte("OK"))
+	if err != nil {
+		logger.Error("Failed writing response", "error", err)
+	}
 	logger.Info("Finished health check request")
 }

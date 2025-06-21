@@ -3,6 +3,7 @@ package route
 import (
 	custommiddleware "github.com/craftaholic/insider/internal/api/middleware"
 	"github.com/craftaholic/insider/internal/bootstrap"
+	"github.com/craftaholic/insider/internal/shared/constant"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
@@ -25,7 +26,7 @@ func SetupRoute(app bootstrap.Application) *chi.Mux {
 		},
 		ExposedHeaders:   []string{"Link", "Content-Type"},
 		AllowCredentials: true,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
+		MaxAge:           constant.CorsMaxAge, // Maximum value not ignored by any of major browsers
 	})
 	r.Use(cors.Handler)
 

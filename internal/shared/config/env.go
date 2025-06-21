@@ -4,6 +4,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/craftaholic/insider/internal/shared/constant"
 	"github.com/craftaholic/insider/internal/shared/log"
 	"github.com/joho/godotenv"
 )
@@ -26,7 +27,7 @@ func LoadEnv() {
 
 	env := &EnvConfig{
 		AppEnv:         getEnv("APP_ENV", "development"),
-		ContextTimeout: getIntEnv("CONTEXT_TIMEOUT", 30),
+		ContextTimeout: getIntEnv("CONTEXT_TIMEOUT", constant.DefaultContextTimeOut),
 		ServerAddress:  getEnv("SERVER_ADDR", "8080"),
 	}
 
