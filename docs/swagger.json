@@ -1,0 +1,92 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http",
+    "https"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "Documentation for User API",
+    "title": "User API",
+    "version": "0.0.1"
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "paths": {
+    "/health": {
+      "get": {
+        "description": "# Returns the health status of the application",
+        "tags": [
+          "health"
+        ],
+        "summary": "Health Check",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/healthResponse"
+          },
+          "500": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    }
+  },
+  "responses": {
+    "errorResponse": {
+      "description": "Error Response",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "description": "Error message",
+            "type": "string",
+            "x-go-name": "Error"
+          }
+        }
+      }
+    },
+    "healthResponse": {
+      "description": "Health Check Response",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "description": "The status of the health check",
+            "type": "string",
+            "x-go-name": "Status"
+          }
+        }
+      }
+    },
+    "userResponse": {
+      "description": "User Response",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "description": "User email",
+            "type": "string",
+            "x-go-name": "Email"
+          },
+          "id": {
+            "description": "User ID",
+            "type": "integer",
+            "format": "int64",
+            "x-go-name": "ID"
+          },
+          "name": {
+            "description": "User name",
+            "type": "string",
+            "x-go-name": "Name"
+          }
+        }
+      }
+    }
+  }
+}
