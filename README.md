@@ -104,6 +104,14 @@ Just need to run ```docker-compose up -d```
 For other utils:
 and look into ***devbox.json*** for the required command
 
+3. Configuration
+<br>
+You can config the application for tunning it. For example:
+-  MESSAGE_CRON_DURATION: 120       # Cron time duration default 120s - 2m
+-  MESSAGE_BATCH_NUMBER: 2          # How many messages will be handled every time, default 2 messages
+-  WORKER_COUNT: 2                  # How many go routine workers available, default 2
+-  WORKER_CHAN_BUFFER: 100          # How many messages can be stuck in the channel for process, default 100
+
 # Development Guide
 1. Run docker-compose.dev file
 <br>
@@ -153,3 +161,6 @@ Myself-made up:
 - [x] Can custom duration/batch/maxWorkers
 - [x] Follow with clean architecture
 - [x] No lint error
+
+>IMPORTANT: Since the webhook.site url provided for me is freetier so I can't set up authentication using API Key header.
+However, my code still supports it.
