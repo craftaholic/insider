@@ -140,20 +140,8 @@ nano .env
 
 4. Start the services:
 ```bash
-# For development (without application container)
-docker-compose -f docker-compose.dev.yml up -d
-
 # For production (with application container)
 docker-compose up -d
-```
-
-5. Run the application:
-```bash
-# For development with hot reload
-air
-
-# For production
-go run cmd/server/main.go
 ```
 
 ## Configuration
