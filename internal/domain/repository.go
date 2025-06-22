@@ -17,5 +17,5 @@ type CacheRepository interface {
 }
 
 type NotificationService interface {
-	SendNotification(c context.Context, message Message) error
+	SendNotification(c context.Context, message Message) (string, error)
 }

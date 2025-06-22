@@ -87,7 +87,7 @@ func (mu *MessageUsecase) messageFetcher(c context.Context) {
 	}
 }
 
-func (mu *MessageUsecase) StopAutomatedSending(ctx context.Context) error {
+func (mu *MessageUsecase) StopAutomatedSending(c context.Context) error {
 	mu.mu.Lock()
 	defer mu.mu.Unlock()
 
@@ -109,6 +109,48 @@ func (mu *MessageUsecase) GetSentMessagesWithPagination(c context.Context, page 
 }
 
 func (mu *MessageUsecase) processSingleMessage(c context.Context, message domain.Message) error {
-	log.FromCtx(c).Info("Processing", "message", message.ID)
+	logger := log.FromCtx(c).WithFields("message", message.ID)
+
+	logger.Info("Processing message")
+
+	logger.Info("Sending notification")
+	messageUUID, err := mu.notificationService.SendNotification(c, message)
+	if err != nil {
+		logger.Error("Failed sending notification", "error", err)
+		return err
+	}
+
+	if messageUUID == "" {
+		logger.Error("MessageUUID return from send notification is empty")
+		return errors.New("the message uuid from send notification webhook is empty")
+	}
+
+	timestamp := time.Now()
+	updates := map[string]interface{}{
+		"status":       "sent",
+		"sent_at":      timestamp,
+		"message_uuid": messageUUID, // Store the UUID from notification service
+		"updated_at":   timestamp,
+	}
+	err = mu.messageRepository.UpdateSelective(c, message.ID, updates)
+	if err != nil {
+		logger.Error("Failed updating message in the db", "error", err)
+		return err
+	}
+
+	timestampBytes, err := timestamp.MarshalBinary()
+	if err != nil {
+		logger.Error("Failed converting timestamp to binary to store into cache", "error", err)
+		return err
+	}
+
+	err = mu.cacheRepository.Set(messageUUID, timestampBytes, 0)
+	if err != nil {
+		logger.Error("Failed storing messageID into cache", "error", err)
+		return err
+	}
+
+	logger.Info("Message handled successfully")
+
 	return nil
 }

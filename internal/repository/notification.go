@@ -18,6 +18,6 @@ func NewNotificationService(apiKey string, endPoint string) domain.NotificationS
 	}
 }
 
-func (ns *NotificationService) SendNotification(c context.Context, message domain.Message) error {
-	return nil
+func (ns *NotificationService) SendNotification(c context.Context, message domain.Message) (string, error) {
+	return "", nil
 }

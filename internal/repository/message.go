@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/craftaholic/insider/internal/domain"
 	"gorm.io/gorm"
@@ -19,23 +20,20 @@ func NewMessageRepository(db *gorm.DB) domain.MessageRepository {
 }
 
 func (r *messageRepository) Update(ctx context.Context, id uint64, message domain.Message) error {
-	// TODO: update this to interact with infra layer for sending instead
-	// then update to db
-	if message.PhoneNumber == "" {
-		return errors.New("phone number is required")
-	}
-	if message.Content == "" {
-		return errors.New("message content is required")
-	}
+	// Update the message with the given ID
+	result := r.db.WithContext(ctx).
+		Model(&domain.Message{}).
+		Where("id = ?", id).
+		Updates(message)
 
-	// Set default status if not provided
-	if message.Status == "" {
-		message.Status = domain.StatusPending
-	}
-
-	result := r.db.WithContext(ctx).Create(&message)
+	// Check for database errors
 	if result.Error != nil {
-		return result.Error
+		return fmt.Errorf("failed to update message with id %d: %w", id, result.Error)
+	}
+
+	// Check if any rows were affected (message exists)
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("message with id %d not found", id)
 	}
 
 	return nil
