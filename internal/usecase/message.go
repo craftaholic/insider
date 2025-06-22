@@ -16,6 +16,11 @@ type MessageUsecase struct {
 	cacheRepository     domain.CacheRepository
 	notificationService domain.NotificationService
 
+	jobBuffer            int
+	workerCount          int
+	producerCronDuration int
+	producerBatchNumber  int
+
 	workerPool *WorkerPool
 	cancel     context.CancelFunc
 	isRunning  bool
@@ -26,11 +31,19 @@ func NewMessageUsecase(
 	messageRepository domain.MessageRepository,
 	cacheRepository domain.CacheRepository,
 	notificationService domain.NotificationService,
+	jobBuffer int,
+	workerCount int,
+	producerCronDuration int,
+	producerBatchNumber int,
 ) domain.MessageUsecase {
 	return &MessageUsecase{
-		messageRepository:   messageRepository,
-		cacheRepository:     cacheRepository,
-		notificationService: notificationService,
+		messageRepository:    messageRepository,
+		cacheRepository:      cacheRepository,
+		notificationService:  notificationService,
+		workerCount:          workerCount,
+		jobBuffer:            jobBuffer,
+		producerCronDuration: producerCronDuration,
+		producerBatchNumber:  producerBatchNumber,
 	}
 }
 
@@ -46,7 +59,7 @@ func (mu *MessageUsecase) StartAutomatedSending(c context.Context) error {
 	mu.cancel = cancel
 
 	// Create worker pool
-	mu.workerPool = newWorkerPool(c, 5) // 5 concurrent workers
+	mu.workerPool = newWorkerPool(c, mu.workerCount, mu.jobBuffer) // 5 concurrent workers
 	mu.workerPool.Start(mu.processSingleMessage)
 
 	// Start message fetcher
@@ -57,7 +70,7 @@ func (mu *MessageUsecase) StartAutomatedSending(c context.Context) error {
 }
 
 func (mu *MessageUsecase) messageFetcher(c context.Context) {
-	ticker := time.NewTicker(3 * time.Second)
+	ticker := time.NewTicker(time.Duration(mu.producerCronDuration) * time.Second)
 	defer ticker.Stop()
 
 	for {
@@ -66,7 +79,7 @@ func (mu *MessageUsecase) messageFetcher(c context.Context) {
 			return
 		case <-ticker.C:
 			if mu.isRunning {
-				messages, err := mu.messageRepository.GetPending(c, 2)
+				messages, err := mu.messageRepository.GetPending(c, mu.producerBatchNumber)
 				if err != nil {
 					continue
 				}

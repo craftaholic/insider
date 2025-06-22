@@ -41,6 +41,8 @@ type EnvConfig struct {
 	// Concurency config
 	MessageBatchNumber  int
 	MessageCronDuration int
+	WorkerCount         int
+	WorkerChanBuffer    int
 }
 
 func LoadEnv() {
@@ -71,11 +73,13 @@ func LoadEnv() {
 		// Notification service
 		WebhookURL:     getEnvOrPanic("WEBHOOK_URL"),
 		WebhookAuthKey: getEnvOrPanic("WEBHOOK_AUTH_KEY"),
-		WebhookTimeout: getIntEnv("WEBHOOK_TIMEOUT", 30),
+		WebhookTimeout: getIntEnv("WEBHOOK_TIMEOUT", constant.WebhookDefaultTimeout),
 
 		// Concurency config
-		MessageBatchNumber:  getIntEnv("MESSAGE_BATCH_NUMBER", 2),
-		MessageCronDuration: getIntEnv("MESSAGE_BATCH_NUMBER", 120),
+		MessageBatchNumber:  getIntEnv("MESSAGE_BATCH_NUMBER", constant.ProducerDefaultBatchNumber),
+		MessageCronDuration: getIntEnv("MESSAGE_BATCH_NUMBER", constant.ProducerDefaultCronDuration),
+		WorkerCount:         getIntEnv("WORKER_COUNT", constant.WorkerDefaultCount),
+		WorkerChanBuffer:    getIntEnv("WORKER_CHAN_BUFFER", constant.WorkerDefaultChanBuffer),
 	}
 
 	logger.Info("Loaded Config", "AppEnv", env.AppEnv)

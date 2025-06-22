@@ -16,6 +16,7 @@ import (
 	gormlog "gorm.io/gorm/logger"
 
 	"github.com/craftaholic/insider/internal/shared/config"
+	"github.com/craftaholic/insider/internal/shared/constant"
 	"github.com/craftaholic/insider/internal/shared/log"
 )
 
@@ -64,10 +65,10 @@ func App() Application {
 
 	// Configure built-in retry
 	restyClient.
-		SetRetryCount(3).                      // Max 3 retries
-		SetRetryWaitTime(1 * time.Second).     // Initial wait
-		SetRetryMaxWaitTime(10 * time.Second). // Max wait time
-		SetTimeout(30 * time.Second).          // Request timeout
+		SetRetryCount(constant.RestMaxRetry).                        // Max 3 retries
+		SetRetryWaitTime(constant.RestRetryWaitTime * time.Second).  // Initial wait
+		SetRetryMaxWaitTime(constant.RestMaxWaitTime * time.Second). // Max wait time
+		SetTimeout(constant.RestTimeOut * time.Second).              // Request timeout
 		AddRetryCondition(func(r *resty.Response, err error) bool {
 			// Retry on network errors
 			if err != nil {
@@ -76,10 +77,10 @@ func App() Application {
 			// Retry on specific HTTP status codes
 			return r.StatusCode() >= 500 || r.StatusCode() == 429 // Server errors or rate limit
 		}).
-		SetRetryAfter(func(client *resty.Client, resp *resty.Response) (time.Duration, error) {
+		SetRetryAfter(func(_ *resty.Client, resp *resty.Response) (time.Duration, error) {
 			// Custom backoff - exponential with jitter
 			retryCount := resp.Request.Attempt
-			backoff := time.Duration(math.Pow(2, float64(retryCount))) * time.Second
+			backoff := time.Duration(math.Pow(constant.RestExponentialBackOffScale, float64(retryCount))) * time.Second
 			return backoff, nil
 		})
 
@@ -93,7 +94,15 @@ func App() Application {
 	)
 
 	// Init Usecase Layer
-	messageUsecase := usecase.NewMessageUsecase(messageRepository, cacheRepository, notificationService)
+	messageUsecase := usecase.NewMessageUsecase(
+		messageRepository,
+		cacheRepository,
+		notificationService,
+		config.Env.WorkerChanBuffer,
+		config.Env.WorkerCount,
+		config.Env.MessageCronDuration,
+		config.Env.MessageBatchNumber,
+	)
 
 	// Init Controller
 	app.HealthController = controller.NewHealthController()

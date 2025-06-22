@@ -16,12 +16,12 @@ type WorkerPool struct {
 	wg          sync.WaitGroup
 }
 
-func newWorkerPool(ctx context.Context, workerCount int) *WorkerPool {
+func newWorkerPool(ctx context.Context, workerCount int, buffer int) *WorkerPool {
 	ctx, cancel := context.WithCancel(ctx)
 	return &WorkerPool{
 		ctx:         ctx,
 		cancel:      cancel,
-		jobChan:     make(chan domain.Message, 100),
+		jobChan:     make(chan domain.Message, buffer),
 		workerCount: workerCount,
 		wg:          sync.WaitGroup{},
 	}
