@@ -2,7 +2,7 @@ package controller
 
 import (
 	"context"
-	"errors"
+	"encoding/json"
 	"net/http"
 	"strconv"
 
@@ -71,8 +71,9 @@ func (mc *MessageController) GetSentMessagesWithPagination(w http.ResponseWriter
 
 	page := r.URL.Query().Get("page")
 	// Default value
-	pageInt := 0
-	if page != nil {
+	pageInt := 1
+	if page != "" { // Changed from page != nil to page != ""
+		var err error // Declare err here
 		pageInt, err = strconv.Atoi(page)
 		if err != nil {
 			http.Error(w, "Invalid page number", http.StatusBadRequest)
@@ -91,8 +92,13 @@ func (mc *MessageController) GetSentMessagesWithPagination(w http.ResponseWriter
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	// TODO: handle this return
-	_, err = w.Write([]byte(messages[0].Content))
+	responseBody, err := json.Marshal(messages)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		logger.Error("Request handled failed", "error", err.Error())
+		return
+	}
+	_, err = w.Write(responseBody)
 	if err != nil {
 		logger.Error("Failed writing response", "error", err)
 	}
