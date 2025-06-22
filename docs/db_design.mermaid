@@ -1,46 +1,54 @@
 erDiagram
-    MESSAGES {
-        BIGSERIAL id PK "Primary Key"
-        VARCHAR(20) phone_number "NOT NULL, International format"
-        TEXT content "NOT NULL, Message content"
-        VARCHAR(20) status "DEFAULT 'pending', CHECK constraint"
+    messages {
+        BIGSERIAL id PK
+        VARCHAR phone_number
+        TEXT content
+        VARCHAR status "DEFAULT pending"
         TIMESTAMP created_at "DEFAULT CURRENT_TIMESTAMP"
-        TIMESTAMP sent_at "NULL, When message was sent"
-        VARCHAR(255) message_id "NULL, Webhook response UUID"
-        TEXT error_message "NULL, Error details if failed"
+        TIMESTAMP sent_at "NULL"
+        VARCHAR message_id "NULL"
+        TEXT error_message "NULL"
+        TIMESTAMP updated_at "NULL"
     }
 
-    SENT_MESSAGES_VIEW {
-        BIGINT id "From messages table"
-        VARCHAR(20) phone_number "Phone number"
-        TEXT content "Message content"
-        VARCHAR(20) status "Always 'sent'"
-        TIMESTAMP created_at "Creation time"
-        TIMESTAMP sent_at "Sent time"
-        VARCHAR(255) message_id "Webhook UUID"
-        NUMERIC processing_time_seconds "Calculated field"
+    sent_messages {
+        BIGINT id
+        VARCHAR phone_number
+        TEXT content
+        VARCHAR status
+        TIMESTAMP created_at
+        TIMESTAMP sent_at
+        VARCHAR message_id
+        DECIMAL processing_time_seconds
     }
 
-    INDEXES {
-        STRING idx_messages_status_created "status, created_at"
-        STRING idx_messages_phone_number "phone_number"
-        STRING idx_messages_message_id "message_id"
-        STRING idx_messages_sent_at "sent_at"
+    get_unsent_messages {
+        INTEGER batch_size "DEFAULT 2"
+        BIGINT id "RETURNS"
+        VARCHAR phone_number "RETURNS"
+        TEXT content "RETURNS"
+        TIMESTAMP created_at "RETURNS"
     }
 
-    FUNCTIONS {
-        STRING get_unsent_messages "batch_size INTEGER DEFAULT 2"
+    mark_message_sent {
+        BIGINT msg_id "INPUT"
+        VARCHAR webhook_message_id "INPUT"
+        VOID return_type "RETURNS"
     }
 
-    MESSAGES ||--o{ SENT_MESSAGES_VIEW : "filtered_view"
-    MESSAGES ||--|| INDEXES : "performance_optimization"
-    MESSAGES ||--|| FUNCTIONS : "business_logic"
-
-    %% Status values constraint
-    MESSAGES ||--|| STATUS_VALUES : "check_constraint"
-    
-    STATUS_VALUES {
-        STRING pending "Default state"
-        STRING sent "Successfully delivered"
-        STRING failed "Delivery failed"
+    mark_message_failed {
+        BIGINT msg_id "INPUT"
+        TEXT error_msg "INPUT"
+        VOID return_type "RETURNS"
     }
+
+    reset_stuck_messages {
+        INTEGER stuck_minutes "DEFAULT 10"
+        INTEGER affected_count "RETURNS"
+    }
+
+    messages ||--o{ sent_messages : "VIEW"
+    messages ||--|| get_unsent_messages : "updates status"
+    messages ||--|| mark_message_sent : "marks as sent"
+    messages ||--|| mark_message_failed : "marks as failed"
+    messages ||--|| reset_stuck_messages : "resets stuck"
