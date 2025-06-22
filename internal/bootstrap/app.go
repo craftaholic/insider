@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/craftaholic/insider/internal/controller"
+	"github.com/craftaholic/insider/internal/domain/interfaces"
 	"github.com/craftaholic/insider/internal/repository"
 	"github.com/craftaholic/insider/internal/usecase"
 	"github.com/go-redis/redis"
@@ -21,9 +22,22 @@ import (
 )
 
 type Application struct {
+	// Infra Layer
+	db          *gorm.DB
+	redisClient *redis.Client
+	restyClient *resty.Client
+
+	// Repo Layer
+	messageRepository   interfaces.MessageRepository
+	notificationService interfaces.NotificationService
+	cacheRepository     interfaces.CacheRepository
+
+	// Usecase Layer
+	messageUsecase interfaces.MessageUsecase
+
 	// Controller/Handler Layer
-	HealthController  *controller.HealthController
-	MessageController *controller.MessageController
+	HealthController  interfaces.HealthController
+	MessageController interfaces.MessageController
 }
 
 func App() Application {
@@ -50,9 +64,10 @@ func App() Application {
 	if err != nil {
 		logger.Fatal("Failed to connect to database:", err)
 	}
+	app.db = db
 
 	// Init Redis client
-	redisClient := redis.NewClient(&redis.Options{
+	app.redisClient = redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf(
 			"%s:%s",
 			config.Env.RedisHost,
@@ -61,10 +76,10 @@ func App() Application {
 	})
 
 	// Init resty client
-	restyClient := resty.New()
+	app.restyClient = resty.New()
 
 	// Configure built-in retry
-	restyClient.
+	app.restyClient.
 		SetRetryCount(constant.RestMaxRetry).                        // Max 3 retries
 		SetRetryWaitTime(constant.RestRetryWaitTime * time.Second).  // Initial wait
 		SetRetryMaxWaitTime(constant.RestMaxWaitTime * time.Second). // Max wait time
@@ -85,19 +100,19 @@ func App() Application {
 		})
 
 	// Init Repository Layer
-	messageRepository := repository.NewMessageRepository(db)
-	cacheRepository := repository.NewCacheRepository(redisClient)
-	notificationService := repository.NewNotificationService(
-		restyClient,
+	app.messageRepository = repository.NewMessageRepository(app.db)
+	app.cacheRepository = repository.NewCacheRepository(app.redisClient)
+	app.notificationService = repository.NewNotificationService(
+		app.restyClient,
 		config.Env.WebhookAuthKey,
 		config.Env.WebhookURL,
 	)
 
 	// Init Usecase Layer
-	messageUsecase := usecase.NewMessageUsecase(
-		messageRepository,
-		cacheRepository,
-		notificationService,
+	app.messageUsecase = usecase.NewMessageUsecase(
+		app.messageRepository,
+		app.cacheRepository,
+		app.notificationService,
 		config.Env.WorkerChanBuffer,
 		config.Env.WorkerCount,
 		config.Env.MessageCronDuration,
@@ -106,12 +121,10 @@ func App() Application {
 
 	// Init Controller
 	app.HealthController = controller.NewHealthController()
-	app.MessageController = controller.NewMessageController(messageUsecase)
-
-	// Start the automation for sending message
+	app.MessageController = controller.NewMessageController(app.messageUsecase)
 
 	// Execute the start automated sending in background context
-	err = messageUsecase.StartAutomatedSending(context.Background())
+	err = app.messageUsecase.StartAutomatedSending(context.Background())
 	if err != nil {
 		logger.Fatal("Error starting automated sending function")
 	}
