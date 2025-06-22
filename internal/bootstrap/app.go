@@ -128,6 +128,7 @@ func App() Application {
 	if err != nil {
 		logger.Fatal("Error starting automated sending function")
 	}
+	logger.Info("Automated sending notification is running")
 
 	return *app
 }

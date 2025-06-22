@@ -59,8 +59,8 @@ services:
       APP_PORT: 8080
       APP_ENV: development
       # Webhook Configuration
-      WEBHOOK_URL: "https://webhook.site/<your-unique-id-here>"
-      WEBHOOK_AUTH_KEY: "<your-key-here>"
+      WEBHOOK_URL: "https://webhook.site/013ffaf1-9c6a-4821-bfe0-458e6977f30f"
+      WEBHOOK_AUTH_KEY: "abc"
       WEBHOOK_TIMEOUT: 30
       # Worker Configuration
       MESSAGE_CRON_DURATION: 120
