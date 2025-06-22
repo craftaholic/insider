@@ -9,3 +9,13 @@ type GetSentMessagesParams struct {
 	// example: 1
 	Page int `json:"page"`
 }
+
+// swagger:parameters start
+type StartParams struct {
+	// No parameters required for this endpoint
+}
+
+// swagger:parameters stop
+type StopParams struct {
+	// No parameters required for this endpoint
+}

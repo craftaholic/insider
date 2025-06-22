@@ -1,5 +1,7 @@
 package dto
 
+import "time"
+
 // MessageDTO represents a message for API responses
 // swagger:model
 type MessageDTO struct {
@@ -7,43 +9,35 @@ type MessageDTO struct {
 	// example: 123
 	ID int `json:"id"`
 
+	// Phone Number
+	// example: +84338252331
+	PhoneNumber string `json:"phone_number"`
+
 	// Message content
 	// example: Hello, this is a test message
 	Content string `json:"content"`
 
-	// Recipient information
-	// example: user@example.com
-	Recipient string `json:"recipient"`
-
-	// Sender information
-	// example: sender@example.com
-	Sender string `json:"sender"`
-
-	// Subject of the message
-	// example: Important notification
-	Subject string `json:"subject"`
-
-	// Message type
-	// example: email
-	Type string `json:"type"`
-
-	// Timestamp when message was created
+	// Timestamp when message was created (ISO 8601 string)
 	// example: 2025-06-22T10:30:00Z
-	CreatedAt string `json:"created_at"`
+	CreatedAt time.Time `json:"created_at"`
 
-	// Timestamp when message was sent
+	// Timestamp when message was sent (ISO 8601 string, nullable)
 	// example: 2025-06-22T10:35:00Z
-	SentAt string `json:"sent_at"`
+	SentAt *time.Time `json:"sent_at"`
 
 	// Message status
 	// example: sent
 	Status string `json:"status"`
 
-	// Number of retry attempts
-	// example: 0
-	RetryCount int `json:"retry_count"`
+	// Message ID of the notification sent
+	// example: e975f171-3ce5-4ea4-bf03-ae5b8849d2cb
+	MessageID *string `json:"message_id"`
 
 	// Error message if sending failed
 	// example: null
 	ErrorMessage *string `json:"error_message,omitempty"`
+
+	// Updated At
+	// example: 2025-06-22T10:35:00Z
+	UpdatedAt *time.Time `json:"updated_at"`
 }
