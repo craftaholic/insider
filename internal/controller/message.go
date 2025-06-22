@@ -22,7 +22,7 @@ func NewMessageController(messageUsecase interfaces.MessageUsecase) *MessageCont
 }
 
 // Start handles starting the automated sending notification
-// swagger:route GET /message/start message start
+// swagger:route POST /message/start message start
 //
 // # Start Automated Message Sending
 //

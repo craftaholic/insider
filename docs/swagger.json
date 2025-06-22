@@ -56,7 +56,7 @@
       }
     },
     "/message/start": {
-      "get": {
+      "post": {
         "description": "This endpoint starts the automated message sending process.",
         "produces": [
           "application/json"

@@ -8,5 +8,5 @@ import (
 func NewMessageRouter(router chi.Router, mc *controller.MessageController) {
 	router.Post("/message/start", mc.Start)
 	router.Post("/message/stop", mc.Stop)
-	router.Get("/message", mc.GetSentMessagesWithPagination)
+	router.Get("/message/sent", mc.GetSentMessagesWithPagination)
 }

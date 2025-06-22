@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -52,8 +51,11 @@ func (mu *MessageUsecase) StartAutomatedSending(c context.Context) error {
 	mu.mu.Lock()
 	defer mu.mu.Unlock()
 
+	logger := log.FromCtx(c)
+
 	if mu.isRunning {
-		return errors.New("automated sending is already running")
+		logger.Info("Automated sending already started don't need to do anything")	
+		return nil
 	}
 
 	serviceCtx, cancel := context.WithCancel(c)
