@@ -222,6 +222,7 @@ Myself-made up:
 - [x] Can custom duration/batch/maxWorkers
 - [x] Follow with clean architecture
 - [x] No lint error
+- [] E2E testing (I'm quite tired to I would not add that :D)
 
 >IMPORTANT: Since the webhook.site url provided for me is freetier so I can't set up authentication using API Key header.
 However, my code still supports it.

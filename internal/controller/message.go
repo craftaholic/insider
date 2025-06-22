@@ -48,7 +48,7 @@ func (mc *MessageController) Start(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := dto.CreateStandardResponse("OK", "Automated sending started successfully")
-	mc.sendJSONResponse(r.Context(), w, response, http.StatusOK)
+	mc.sendJSONResponse(r.Context(), w, response, http.StatusAccepted)
 	logger.Info("Finished start automated sending message request")
 }
 
@@ -78,7 +78,7 @@ func (mc *MessageController) Stop(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := dto.CreateStandardResponse("OK", "Automated sending stopped successfully")
-	mc.sendJSONResponse(r.Context(), w, response, http.StatusOK)
+	mc.sendJSONResponse(r.Context(), w, response, http.StatusAccepted)
 	logger.Info("Finished stop automated sending message request")
 }
 
