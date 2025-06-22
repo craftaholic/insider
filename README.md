@@ -1,5 +1,10 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/tranthang/insider)](https://goreportcard.com/report/github.com/tranthang/insider)
+[![GoDoc](https://godoc.org/github.com/tranthang/insider?status.svg)](https://godoc.org/github.com/tranthang/insider)
+[![License](https://img.shields.io/github/license/tranthang/insider)](LICENSE)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/tranthang/insider)](go.mod)
+
 # Overview
-This project is interview test from Insider for Senior Golang Developer role
+This project is an interview test from Insider for Senior Golang Developer role. It implements an automated message sending system with REST API endpoints for control and monitoring.
 
 # Analyzing
 For start and stop feature. I will run the automated service in a dedicated thread. When start/stop signal sent
@@ -64,13 +69,16 @@ Database design:
     └── utils                           # Util functions
 ```
 
-# How to setup
-This section guide how to setup the repository. Personally, I like to use Devbox - which is similar with package.json for javascript. But Devbox supports to have all required libraries/binaries for your dev env as well as scripting utilities. You can use or not, please looks into ***./devbox.json*** file for all util script.
+# Installation
 
-## Prerequisites
+There are two ways to set up this project: using Devbox (recommended) or manual installation.
+
+## Option 1: Using Devbox (Recommended)
+
+### Prerequisites
 - Devbox: [link](https://www.jetify.com/devbox)
 
-Devbox will installs:
+Devbox will automatically install:
 - earthly@latest
 - go@1.24.3
 - trufflehog@latest
@@ -78,39 +86,108 @@ Devbox will installs:
 - golangci-lint@latest
 - psqlodbc@latest
 
-## Guidelines
-The project and all of it's system is setup using docker-compose.
-
-1. If you are using devbox then it's quite simple
-```
+### Steps
+1. Start Devbox shell:
+```bash
 devbox shell
+```
+
+2. Start the services:
+```bash
 devbox run up
 ```
 
-To shut it down:
-```
+To shut down:
+```bash
 devbox run down
 ```
 
->***devbox shell*** will create a shell where it has all required libraries with the exact version declared in devbox.json
+## Option 2: Manual Installation
 
->***devbox up*** will setup docker-compose
+### Prerequisites
+- Go 1.24.3 or later
+- Docker and Docker Compose
+- PostgreSQL client (psql)
+- Redis CLI (optional, for debugging)
 
-2. If you don't want to use devbox
-<br>
-Just need to run ```docker-compose up -d``` 
-<br>
-<br>
-For other utils:
-and look into ***devbox.json*** for the required command
+### Steps
 
-3. Configuration
-<br>
-You can config the application for tunning it. For example:
--  MESSAGE_CRON_DURATION: 120       # Cron time duration default 120s - 2m
--  MESSAGE_BATCH_NUMBER: 2          # How many messages will be handled every time, default 2 messages
--  WORKER_COUNT: 2                  # How many go routine workers available, default 2
--  WORKER_CHAN_BUFFER: 100          # How many messages can be stuck in the channel for process, default 100
+1. Install Go dependencies:
+```bash
+go mod download
+```
+
+2. Install development tools:
+```bash
+# Install air for hot reloading
+go install github.com/cosmtrek/air@latest
+
+# Install golangci-lint
+go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+
+# Install trufflehog for security scanning
+go install github.com/trufflesecurity/trufflehog/v3@latest
+```
+
+3. Set up the environment:
+```bash
+# Copy example environment file
+cp .env.example .env
+
+# Edit .env file with your settings
+nano .env
+```
+
+4. Start the services:
+```bash
+# For development (without application container)
+docker-compose -f docker-compose.dev.yml up -d
+
+# For production (with application container)
+docker-compose up -d
+```
+
+5. Run the application:
+```bash
+# For development with hot reload
+air
+
+# For production
+go run cmd/server/main.go
+```
+
+## Configuration
+
+You can configure the application by modifying these environment variables:
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| MESSAGE_CRON_DURATION | Cron time duration in seconds | 120 |
+| MESSAGE_BATCH_NUMBER | Messages handled per batch | 2 |
+| WORKER_COUNT | Number of concurrent workers | 2 |
+| WORKER_CHAN_BUFFER | Channel buffer size | 100 |
+| POSTGRES_HOST | PostgreSQL host | localhost |
+| POSTGRES_PORT | PostgreSQL port | 5432 |
+| REDIS_HOST | Redis host | localhost |
+| REDIS_PORT | Redis port | 6379 |
+| WEBHOOK_URL | Webhook URL for sending messages | |
+| WEBHOOK_API_KEY | API key for webhook authentication | |
+
+# API Documentation
+
+The application provides REST API endpoints for controlling and monitoring the message processing system. The complete API documentation is available in OpenAPI/Swagger format:
+
+- Swagger JSON: [docs/swagger.json](docs/swagger.json)
+- API Documentation: [http://localhost:8080/docs](http://localhost:8080/docs) (when running locally)
+
+Main endpoints include:
+- `GET /health` - Health check endpoint
+- `POST /service/start` - Start message processing
+- `POST /service/stop` - Stop message processing
+- `GET /service/status` - Get status of the service
+- `GET /messages/sent` - List sent messages
+
+For detailed API documentation including request/response schemas, authentication requirements, and example usage, please refer to the Swagger documentation.
 
 # Development Guide
 1. Run docker-compose.dev file
