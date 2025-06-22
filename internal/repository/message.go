@@ -19,6 +19,23 @@ func NewMessageRepository(db *gorm.DB) domain.MessageRepository {
 	}
 }
 
+func (r *messageRepository) UpdateSelective(ctx context.Context, id uint64, updates map[string]any) error {
+	result := r.db.WithContext(ctx).
+		Model(&domain.Message{}).
+		Where("id = ?", id).
+		Updates(updates)
+
+	if result.Error != nil {
+		return fmt.Errorf("failed to update message with id %d: %w", id, result.Error)
+	}
+
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("message with id %d not found", id)
+	}
+
+	return nil
+}
+
 func (r *messageRepository) Update(ctx context.Context, id uint64, message domain.Message) error {
 	// Update the message with the given ID
 	result := r.db.WithContext(ctx).

@@ -29,10 +29,13 @@
         "docker-compose up -d"
       ],
       "down": [
-        "docker-compose down"
+        "docker-compose down -v"
       ],
       "sql": [
           "docker-compose exec postgres psql -U postgres -d message_system"
+      ],
+      "redis": [
+          "docker-compose exec redis"
       ]
     }
   }

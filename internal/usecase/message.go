@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 
@@ -91,8 +92,11 @@ func (mu *MessageUsecase) StopAutomatedSending(c context.Context) error {
 	mu.mu.Lock()
 	defer mu.mu.Unlock()
 
+	logger := log.FromCtx(c)
+	logger.Info("Stopping automated sending notification...")
+
 	if !mu.isRunning {
-		return errors.New("automated sending is not running")
+		logger.Info("Automated sending service already stopped")
 	}
 
 	if mu.workerPool != nil {
@@ -101,6 +105,7 @@ func (mu *MessageUsecase) StopAutomatedSending(c context.Context) error {
 
 	mu.isRunning = false
 	mu.cancel()
+	logger.Info("Stopping automated sending notification successfully")
 	return nil
 }
 
@@ -108,49 +113,72 @@ func (mu *MessageUsecase) GetSentMessagesWithPagination(c context.Context, page 
 	return nil, nil
 }
 
-func (mu *MessageUsecase) processSingleMessage(c context.Context, message domain.Message) error {
-	logger := log.FromCtx(c).WithFields("message", message.ID)
-
+// This function will provide at-least 1 notification sent but it will make sure
+// there are no cases where notification never sent.
+func (mu *MessageUsecase) processSingleMessage(ctx context.Context, message domain.Message) error {
+	logger := log.FromCtx(ctx).WithFields("message_id", message.ID)
 	logger.Info("Processing message")
 
+	// 1. Send notification
 	logger.Info("Sending notification")
-	messageUUID, err := mu.notificationService.SendNotification(c, message)
+	messageUUID, err := mu.notificationService.SendNotification(ctx, message)
 	if err != nil {
-		logger.Error("Failed sending notification", "error", err)
-		return err
+		// Update status to failed before returning
+		mu.handleMessageFailure(ctx, message.ID, "notification_failed", err)
+		return fmt.Errorf("failed to send notification: %w", err)
 	}
 
 	if messageUUID == "" {
-		logger.Error("MessageUUID return from send notification is empty")
-		return errors.New("the message uuid from send notification webhook is empty")
+		logger.Error("Notification sent but returned empty message UUID")
 	}
 
+	// 2. Update message status (only update what changed)
 	timestamp := time.Now()
-	updates := map[string]interface{}{
-		"status":       "sent",
-		"sent_at":      timestamp,
-		"message_uuid": messageUUID, // Store the UUID from notification service
-		"updated_at":   timestamp,
-	}
-	err = mu.messageRepository.UpdateSelective(c, message.ID, updates)
-	if err != nil {
-		logger.Error("Failed updating message in the db", "error", err)
-		return err
+	updates := map[string]any{
+		"status":     "sent",
+		"sent_at":    timestamp,
+		"message_id": messageUUID, // Store the UUID from notification service
+		"updated_at": timestamp,
 	}
 
+	err = mu.messageRepository.UpdateSelective(ctx, message.ID, updates)
+	if err != nil {
+		// This error won't return cause message already sent
+		logger.Error("Failed to update message status", "error", err)
+	}
+
+	// 3. Cache the result
+	if err = mu.cacheMessageResult(messageUUID, timestamp); err != nil {
+		// This error won't return cause message already sent
+		logger.Warn("Failed to cache message result", "error", err)
+	}
+
+	logger.Info("Message processed successfully", "message_uuid", messageUUID)
+	return nil
+}
+
+func (mu *MessageUsecase) handleMessageFailure(ctx context.Context, messageID uint64, reason string, originalErr error) {
+	logger := log.FromCtx(ctx).WithFields("message_id", messageID)
+
+	updates := map[string]any{
+		"status":        "failed",
+		"error_message": fmt.Sprintf("%s: %v", reason, originalErr),
+		"updated_at":    time.Now(),
+	}
+
+	if err := mu.messageRepository.UpdateSelective(ctx, messageID, updates); err != nil {
+		logger.Error("Failed to set message status to failed", "error", err)
+	}
+}
+
+// Helper function for caching.
+func (mu *MessageUsecase) cacheMessageResult(messageUUID string, timestamp time.Time) error {
 	timestampBytes, err := timestamp.MarshalBinary()
 	if err != nil {
-		logger.Error("Failed converting timestamp to binary to store into cache", "error", err)
-		return err
+		return fmt.Errorf("failed to marshal timestamp: %w", err)
 	}
 
-	err = mu.cacheRepository.Set(messageUUID, timestampBytes, 0)
-	if err != nil {
-		logger.Error("Failed storing messageID into cache", "error", err)
-		return err
-	}
-
-	logger.Info("Message handled successfully")
-
-	return nil
+	// Use a reasonable TTL instead of 0 (forever)
+	ttl := 0 * time.Hour // Cache for 24 hours
+	return mu.cacheRepository.Set(messageUUID, timestampBytes, ttl)
 }
