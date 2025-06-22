@@ -5,7 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/craftaholic/insider/internal/domain"
+	"github.com/craftaholic/insider/internal/domain/entity"
+	"github.com/craftaholic/insider/internal/domain/interfaces"
 	"github.com/craftaholic/insider/internal/shared/log"
 	"github.com/go-resty/resty/v2"
 )
@@ -28,7 +29,7 @@ type NotificationService struct {
 	client   *resty.Client
 }
 
-func NewNotificationService(client *resty.Client, apiKey string, endPoint string) domain.NotificationService {
+func NewNotificationService(client *resty.Client, apiKey string, endPoint string) interfaces.NotificationService {
 	return &NotificationService{
 		apiKey:   apiKey,
 		endPoint: endPoint,
@@ -36,7 +37,7 @@ func NewNotificationService(client *resty.Client, apiKey string, endPoint string
 	}
 }
 
-func (ns *NotificationService) SendNotification(c context.Context, message domain.Message) (string, error) {
+func (ns *NotificationService) SendNotification(c context.Context, message entity.Message) (string, error) {
 	logger := log.FromCtx(c).WithFields("action", "Sending notification")
 
 	notificationRequest := NotificationRequest{

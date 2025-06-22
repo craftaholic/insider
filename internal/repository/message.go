@@ -5,7 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/craftaholic/insider/internal/domain"
+	"github.com/craftaholic/insider/internal/domain/entity"
+	"github.com/craftaholic/insider/internal/domain/interfaces"
 	"gorm.io/gorm"
 )
 
@@ -13,7 +14,7 @@ type messageRepository struct {
 	db *gorm.DB
 }
 
-func NewMessageRepository(db *gorm.DB) domain.MessageRepository {
+func NewMessageRepository(db *gorm.DB) interfaces.MessageRepository {
 	return &messageRepository{
 		db: db,
 	}
@@ -21,7 +22,7 @@ func NewMessageRepository(db *gorm.DB) domain.MessageRepository {
 
 func (r *messageRepository) UpdateSelective(ctx context.Context, id uint64, updates map[string]any) error {
 	result := r.db.WithContext(ctx).
-		Model(&domain.Message{}).
+		Model(&entity.Message{}).
 		Where("id = ?", id).
 		Updates(updates)
 
@@ -36,10 +37,10 @@ func (r *messageRepository) UpdateSelective(ctx context.Context, id uint64, upda
 	return nil
 }
 
-func (r *messageRepository) Update(ctx context.Context, id uint64, message domain.Message) error {
+func (r *messageRepository) Update(ctx context.Context, id uint64, message entity.Message) error {
 	// Update the message with the given ID
 	result := r.db.WithContext(ctx).
-		Model(&domain.Message{}).
+		Model(&entity.Message{}).
 		Where("id = ?", id).
 		Updates(message)
 
@@ -56,12 +57,12 @@ func (r *messageRepository) Update(ctx context.Context, id uint64, message domai
 	return nil
 }
 
-func (r *messageRepository) GetPending(ctx context.Context, batch int) ([]domain.Message, error) {
+func (r *messageRepository) GetPending(ctx context.Context, batch int) ([]entity.Message, error) {
 	if batch <= 0 {
 		return nil, errors.New("batch size must be greater than 0")
 	}
 
-	var messages []domain.Message
+	var messages []entity.Message
 
 	err := r.db.WithContext(ctx).
 		Raw("SELECT * FROM get_unsent_messages(?)", batch).
@@ -74,7 +75,7 @@ func (r *messageRepository) GetPending(ctx context.Context, batch int) ([]domain
 	return messages, nil
 }
 
-func (r *messageRepository) GetSentWithPagination(ctx context.Context, page int) ([]domain.Message, error) {
+func (r *messageRepository) GetSentWithPagination(ctx context.Context, page int) ([]entity.Message, error) {
 	if page <= 0 {
 		return nil, errors.New("page must be greater than 0")
 	}
@@ -82,10 +83,10 @@ func (r *messageRepository) GetSentWithPagination(ctx context.Context, page int)
 	const pageSize = 20
 	offset := (page - 1) * pageSize
 
-	var messages []domain.Message
+	var messages []entity.Message
 
 	err := r.db.WithContext(ctx).
-		Where("status = ?", domain.StatusSent).
+		Where("status = ?", entity.StatusSent).
 		Offset(offset).
 		Limit(pageSize).
 		Order("sent_at DESC").

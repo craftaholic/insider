@@ -36,7 +36,10 @@
       ],
       "redis": [
           "docker-compose exec redis redis-cli"
-      ]
+      ],
+      "api-gen": [
+        "swagger generate spec -o ./docs/swagger.json --scan-models"
+      ],
     }
   }
 }

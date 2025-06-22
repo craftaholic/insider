@@ -36,16 +36,3 @@ type ErrorResponse struct {
 	}
 }
 
-// User Response
-// swagger:response userResponse
-type UserResponse struct {
-	// in: body
-	Body struct {
-		// User ID
-		ID int `json:"id" example:"1"`
-		// User name
-		Name string `json:"name" example:"John Doe"`
-		// User email
-		Email string `json:"email" example:"john@example.com"`
-	}
-}

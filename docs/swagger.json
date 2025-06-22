@@ -35,6 +35,26 @@
           }
         }
       }
+    },
+    "/message/start": {
+      "get": {
+        "description": "# Returns the health status of the application",
+        "tags": [
+          "start",
+          "automated",
+          "notification"
+        ],
+        "summary": "Start automated Sending",
+        "operationId": "sending",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/startResponse"
+          },
+          "500": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
     }
   },
   "responses": {
@@ -60,30 +80,6 @@
             "description": "The status of the health check",
             "type": "string",
             "x-go-name": "Status"
-          }
-        }
-      }
-    },
-    "userResponse": {
-      "description": "User Response",
-      "schema": {
-        "type": "object",
-        "properties": {
-          "email": {
-            "description": "User email",
-            "type": "string",
-            "x-go-name": "Email"
-          },
-          "id": {
-            "description": "User ID",
-            "type": "integer",
-            "format": "int64",
-            "x-go-name": "ID"
-          },
-          "name": {
-            "description": "User name",
-            "type": "string",
-            "x-go-name": "Name"
           }
         }
       }

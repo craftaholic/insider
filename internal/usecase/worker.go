@@ -4,14 +4,14 @@ import (
 	"context"
 	"sync"
 
-	"github.com/craftaholic/insider/internal/domain"
+	"github.com/craftaholic/insider/internal/domain/entity"
 	"github.com/craftaholic/insider/internal/shared/log"
 )
 
 type WorkerPool struct {
 	ctx         context.Context
 	cancel      context.CancelFunc
-	jobChan     chan domain.Message
+	jobChan     chan entity.Message
 	workerCount int
 	wg          sync.WaitGroup
 }
@@ -21,7 +21,7 @@ func newWorkerPool(ctx context.Context, workerCount int, buffer int) *WorkerPool
 	return &WorkerPool{
 		ctx:         ctx,
 		cancel:      cancel,
-		jobChan:     make(chan domain.Message, buffer),
+		jobChan:     make(chan entity.Message, buffer),
 		workerCount: workerCount,
 		wg:          sync.WaitGroup{},
 	}
@@ -31,7 +31,7 @@ func newWorkerPool(ctx context.Context, workerCount int, buffer int) *WorkerPool
 // 1 go routines. Each of these workers will handle
 // 1 message from the db (every 2 mins there will
 // be new messages sent into the channel).
-func (wp *WorkerPool) Start(processor func(context.Context, domain.Message) error) {
+func (wp *WorkerPool) Start(processor func(context.Context, entity.Message) error) {
 	for i := range wp.workerCount {
 		wp.wg.Add(1)
 		go func(workerID int) {
@@ -62,7 +62,7 @@ func (wp *WorkerPool) Start(processor func(context.Context, domain.Message) erro
 // AddJob will continue add job to the jobChan buffer
 // if there is a cancel signal event -> stop receiving
 // new message.
-func (wp *WorkerPool) AddJob(message domain.Message) bool {
+func (wp *WorkerPool) AddJob(message entity.Message) bool {
 	select {
 	// Always check the context first to
 	case <-wp.ctx.Done():

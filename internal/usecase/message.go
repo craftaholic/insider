@@ -7,14 +7,15 @@ import (
 	"sync"
 	"time"
 
-	"github.com/craftaholic/insider/internal/domain"
+	"github.com/craftaholic/insider/internal/domain/entity"
+	"github.com/craftaholic/insider/internal/domain/interfaces"
 	"github.com/craftaholic/insider/internal/shared/log"
 )
 
 type MessageUsecase struct {
-	messageRepository   domain.MessageRepository
-	cacheRepository     domain.CacheRepository
-	notificationService domain.NotificationService
+	messageRepository   interfaces.MessageRepository
+	cacheRepository     interfaces.CacheRepository
+	notificationService interfaces.NotificationService
 
 	jobBuffer            int
 	workerCount          int
@@ -28,14 +29,14 @@ type MessageUsecase struct {
 }
 
 func NewMessageUsecase(
-	messageRepository domain.MessageRepository,
-	cacheRepository domain.CacheRepository,
-	notificationService domain.NotificationService,
+	messageRepository interfaces.MessageRepository,
+	cacheRepository interfaces.CacheRepository,
+	notificationService interfaces.NotificationService,
 	jobBuffer int,
 	workerCount int,
 	producerCronDuration int,
 	producerBatchNumber int,
-) domain.MessageUsecase {
+) interfaces.MessageUsecase {
 	return &MessageUsecase{
 		messageRepository:    messageRepository,
 		cacheRepository:      cacheRepository,
@@ -123,7 +124,7 @@ func (mu *MessageUsecase) StopAutomatedSending(c context.Context) error {
 	return nil
 }
 
-func (mu *MessageUsecase) GetSentMessagesWithPagination(c context.Context, page int) ([]domain.Message, error) {
+func (mu *MessageUsecase) GetSentMessagesWithPagination(c context.Context, page int) ([]entity.Message, error) {
 	logger := log.FromCtx(c).WithFields("action", "Get sent message with pagination", "page", page)
 	logger.Info("Getting all sent message of this page")
 
@@ -132,7 +133,7 @@ func (mu *MessageUsecase) GetSentMessagesWithPagination(c context.Context, page 
 
 // This function will provide at-least 1 notification sent but it will make sure
 // there are no cases where notification never sent.
-func (mu *MessageUsecase) processSingleMessage(ctx context.Context, message domain.Message) error {
+func (mu *MessageUsecase) processSingleMessage(ctx context.Context, message entity.Message) error {
 	logger := log.FromCtx(ctx).WithFields("message_id", message.ID)
 	logger.Info("Processing message")
 

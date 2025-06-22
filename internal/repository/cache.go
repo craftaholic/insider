@@ -3,7 +3,7 @@ package repository
 import (
 	"time"
 
-	"github.com/craftaholic/insider/internal/domain"
+	"github.com/craftaholic/insider/internal/domain/interfaces"
 	"github.com/go-redis/redis"
 )
 
@@ -11,7 +11,7 @@ type CacheRepository struct {
 	client *redis.Client
 }
 
-func NewCacheRepository(redisClient *redis.Client) domain.CacheRepository {
+func NewCacheRepository(redisClient *redis.Client) interfaces.CacheRepository {
 	return &CacheRepository{
 		client: redisClient,
 	}
