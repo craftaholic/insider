@@ -35,7 +35,7 @@
           "docker-compose exec postgres psql -U postgres -d message_system"
       ],
       "redis": [
-          "docker-compose exec redis"
+          "docker-compose exec redis redis-cli"
       ]
     }
   }
