@@ -5,6 +5,7 @@ import "net/http"
 type MessageController interface {
 	Start(w http.ResponseWriter, r *http.Request)
 	Stop(w http.ResponseWriter, r *http.Request)
+	Status(w http.ResponseWriter, r *http.Request)
 	GetSentMessagesWithPagination(w http.ResponseWriter, r *http.Request)
 }
 

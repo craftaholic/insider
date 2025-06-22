@@ -55,7 +55,7 @@
         }
       }
     },
-    "/message/start": {
+    "/service/start": {
       "post": {
         "description": "This endpoint starts the automated message sending process.",
         "produces": [
@@ -76,7 +76,28 @@
         }
       }
     },
-    "/message/stop": {
+    "/service/status": {
+      "get": {
+        "description": "This endpoint stops the automated message sending process.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "message"
+        ],
+        "summary": "Stop Automated Message Sending",
+        "operationId": "stop",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/statusResponse"
+          },
+          "500": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    },
+    "/service/stop": {
       "post": {
         "description": "This endpoint stops the automated message sending process.",
         "produces": [
@@ -89,7 +110,7 @@
         "operationId": "stop",
         "responses": {
           "200": {
-            "$ref": "#/responses/stopResponse"
+            "$ref": "#/responses/statusResponse"
           },
           "500": {
             "$ref": "#/responses/errorResponse"
@@ -225,6 +246,12 @@
       }
     },
     "startResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/StandardResponse"
+      }
+    },
+    "statusResponse": {
       "description": "",
       "schema": {
         "$ref": "#/definitions/StandardResponse"

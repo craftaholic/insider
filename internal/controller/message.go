@@ -22,7 +22,7 @@ func NewMessageController(messageUsecase interfaces.MessageUsecase) *MessageCont
 }
 
 // Start handles starting the automated sending notification
-// swagger:route POST /message/start message start
+// swagger:route POST /service/start message start
 //
 // # Start Automated Message Sending
 //
@@ -53,7 +53,7 @@ func (mc *MessageController) Start(w http.ResponseWriter, r *http.Request) {
 }
 
 // Stop handles stopping the automated sending notification
-// swagger:route POST /message/stop message stop
+// swagger:route POST /service/stop message stop
 //
 // # Stop Automated Message Sending
 //
@@ -78,6 +78,41 @@ func (mc *MessageController) Stop(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := dto.CreateStandardResponse("OK", "Automated sending stopped successfully")
+	mc.sendJSONResponse(r.Context(), w, response, http.StatusOK)
+	logger.Info("Finished stop automated sending message request")
+}
+
+// Status method get the status of automated sending notification
+// swagger:route GET /service/status message stop
+//
+// # Stop Automated Message Sending
+//
+// This endpoint stops the automated message sending process.
+//
+// Produces:
+// - application/json
+//
+// Responses:
+//
+//	200: statusResponse
+//	500: errorResponse
+func (mc *MessageController) Status(w http.ResponseWriter, r *http.Request) {
+	logger := log.FromCtx(r.Context()).WithFields("controller", utils.GetStructName(mc))
+	logger.Info("Getting automated sending message service status")
+	ctx := logger.WithCtx(r.Context())
+
+	status, err := mc.MessageUsecase.GetAutomatedSendingStatus(ctx)
+	if err != nil {
+		mc.sendErrorResponse(r.Context(), w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	message := "Automated sending service is running"
+	if !status {
+		message = "Automated sending service is stopped"
+	}
+
+	response := dto.CreateStandardResponse("OK", message)
 	mc.sendJSONResponse(r.Context(), w, response, http.StatusOK)
 	logger.Info("Finished stop automated sending message request")
 }

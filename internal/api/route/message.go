@@ -6,7 +6,8 @@ import (
 )
 
 func NewMessageRouter(router chi.Router, mc interfaces.MessageController) {
-	router.Post("/message/start", mc.Start)
-	router.Post("/message/stop", mc.Stop)
+	router.Post("/service/start", mc.Start)
+	router.Post("/service/stop", mc.Stop)
+	router.Get("/service/status", mc.Status)
 	router.Get("/message/sent", mc.GetSentMessagesWithPagination)
 }

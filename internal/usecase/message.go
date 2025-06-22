@@ -54,7 +54,7 @@ func (mu *MessageUsecase) StartAutomatedSending(c context.Context) error {
 	logger := log.FromCtx(c)
 
 	if mu.isRunning {
-		logger.Info("Automated sending already started don't need to do anything")	
+		logger.Info("Automated sending already started don't need to do anything")
 		return nil
 	}
 
@@ -124,6 +124,13 @@ func (mu *MessageUsecase) StopAutomatedSending(c context.Context) error {
 	mu.cancel()
 	logger.Info("Stopping automated sending notification successfully")
 	return nil
+}
+
+func (mu *MessageUsecase) GetAutomatedSendingStatus(c context.Context) (bool, error) {
+	mu.mu.RLock()
+	defer mu.mu.RUnlock()
+
+	return mu.isRunning, nil
 }
 
 func (mu *MessageUsecase) GetSentMessagesWithPagination(c context.Context, page int) ([]entity.Message, error) {
