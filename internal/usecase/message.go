@@ -76,29 +76,38 @@ func (mu *MessageUsecase) messageFetcher(c context.Context) {
 	ticker := time.NewTicker(time.Duration(mu.producerCronDuration) * time.Second)
 	defer ticker.Stop()
 
+	// Trigger the first time
+	mu.fetchMessages(c)
+
 	for {
 		select {
 		case <-c.Done():
 			return
 		case <-ticker.C:
-			if mu.isRunning {
-				messages, err := mu.messageRepository.GetPending(c, mu.producerBatchNumber)
-				if err != nil {
-					continue
-				}
+			mu.fetchMessages(c)
+		default:
+			continue
+		}
+	}
+}
 
-				for _, message := range messages {
-					log.FromCtx(c).Info("Fetching", "message", message.ID)
-					succeed := mu.workerPool.AddJob(message)
-					// If can't add job to queue -> convert the status
-					if !succeed {
-						message.Status = "pending"
-						err = mu.messageRepository.Update(c, message.ID, message)
-						if err != nil {
-							log.FromCtx(c).
-								Error("Error changing status of message back to pending", "message", message.ID)
-						}
-					}
+func (mu *MessageUsecase) fetchMessages(c context.Context) {
+	if mu.isRunning {
+		messages, err := mu.messageRepository.GetPending(c, mu.producerBatchNumber)
+		if err != nil {
+			return
+		}
+
+		for _, message := range messages {
+			log.FromCtx(c).Info("Fetching", "message", message.ID)
+			succeed := mu.workerPool.AddJob(message)
+			// If can't add job to queue -> convert the status
+			if !succeed {
+				message.Status = "pending"
+				err = mu.messageRepository.Update(c, message.ID, message)
+				if err != nil {
+					log.FromCtx(c).
+						Error("Error changing status of message back to pending", "message", message.ID)
 				}
 			}
 		}
