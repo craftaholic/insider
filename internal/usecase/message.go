@@ -110,7 +110,10 @@ func (mu *MessageUsecase) StopAutomatedSending(c context.Context) error {
 }
 
 func (mu *MessageUsecase) GetSentMessagesWithPagination(c context.Context, page int) ([]domain.Message, error) {
-	return nil, nil
+	logger := log.FromCtx(c).WithFields("action", "Get sent message with pagination", "page", page)
+	logger.Info("Getting all sent message of this page")
+
+	return mu.messageRepository.GetSentWithPagination(c, page)
 }
 
 // This function will provide at-least 1 notification sent but it will make sure

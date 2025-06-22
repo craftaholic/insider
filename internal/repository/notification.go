@@ -7,7 +7,6 @@ import (
 
 	"github.com/craftaholic/insider/internal/domain"
 	"github.com/craftaholic/insider/internal/shared/log"
-	"github.com/craftaholic/insider/internal/utils"
 	"github.com/go-resty/resty/v2"
 )
 

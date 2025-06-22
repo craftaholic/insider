@@ -2,7 +2,9 @@ package controller
 
 import (
 	"context"
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/craftaholic/insider/internal/domain"
 	"github.com/craftaholic/insider/internal/shared/log"
@@ -67,7 +69,19 @@ func (mc *MessageController) GetSentMessagesWithPagination(w http.ResponseWriter
 	logger.Info("Starting automated sending message")
 	ctx := logger.WithCtx(r.Context())
 
-	messages, err := mc.MessageUsecase.GetSentMessagesWithPagination(ctx, 1)
+	page := r.URL.Query().Get("page")
+	// Default value
+	pageInt := 0
+	if page != nil {
+		pageInt, err = strconv.Atoi(page)
+		if err != nil {
+			http.Error(w, "Invalid page number", http.StatusBadRequest)
+			logger.Error("Request handled failed", "error", err.Error())
+			return
+		}
+	}
+
+	messages, err := mc.MessageUsecase.GetSentMessagesWithPagination(ctx, pageInt)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		logger.Error("Request handled failed", "error", err.Error())
