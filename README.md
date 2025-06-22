@@ -1,7 +1,7 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/tranthang/insider)](https://goreportcard.com/report/github.com/tranthang/insider)
-[![GoDoc](https://godoc.org/github.com/tranthang/insider?status.svg)](https://godoc.org/github.com/tranthang/insider)
-[![License](https://img.shields.io/github/license/tranthang/insider)](LICENSE)
-[![Go Version](https://img.shields.io/github/go-mod/go-version/tranthang/insider)](go.mod)
+[![Go Report Card](https://goreportcard.com/badge/github.com/craftaholic/insider)](https://goreportcard.com/report/github.com/craftaholic/insider)
+[![GoDoc](https://godoc.org/github.com/craftaholic/insider?status.svg)](https://godoc.org/github.com/craftaholic/insider)
+[![License](https://img.shields.io/github/license/craftaholic/insider)](LICENSE)
+[![Go Version](https://img.shields.io/github/go-mod/go-version/craftaholic/insider)](go.mod)
 
 # Overview
 This project is an interview test from Insider for Senior Golang Developer role. It implements an automated message sending system with REST API endpoints for control and monitoring.
