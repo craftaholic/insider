@@ -69,6 +69,8 @@ func App() Application {
 	app.MessageController = controller.NewMessageController(messageUsecase)
 
 	// Start the automation for sending message
+
+	// Execute the start automated sending in background context
 	err = messageUsecase.StartAutomatedSending(context.Background())
 	if err != nil {
 		logger.Fatal("Error starting automated sending function")

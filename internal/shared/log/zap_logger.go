@@ -75,7 +75,7 @@ func (l *ZapLogger) FromCtx(ctx context.Context) Log {
 	}
 
 	// If the logger is not attached to the context, return the no-op logger
-	return &ZapLogger{logger: zap.NewNop()}
+	return BaseLogger
 }
 
 // WithCtx returns a copy of ctx with the Logger attached.
