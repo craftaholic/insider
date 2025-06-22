@@ -225,3 +225,22 @@ Myself-made up:
 
 >IMPORTANT: Since the webhook.site url provided for me is freetier so I can't set up authentication using API Key header.
 However, my code still supports it.
+
+### Result images
+- Test with 8 messages.
+- 2 mins cron
+- Each time process 2 messages in batch
+
+1. Application log
+<br>
+![Application Log](./docs/result-applog.png)
+
+1. Webhook.site log on notification received
+<br>
+![Notification Log](./docs/result-notification.png)
+You can see it processes 2 messages every 2 mins
+
+1. Redis log
+<br>
+All messages is stored into redis
+![Redis Log](./docs/result-redis.png)
