@@ -179,20 +179,16 @@ For detailed API documentation including request/response schemas, authenticatio
 
 # Development Guide
 1. Run docker-compose.dev file
-<br>
-This file only contains system containers (redis, postgres)
+<br>This file only contains system containers (redis, postgres)
 
 2. Copy .env.example -> .env
-<br>
-Then config the env webhook
+<br>Then config the env webhook
 
 3. Go into Devbox shell (Optional)
-<br>
-Run ```devbox shell```
+<br>Run ```devbox shell```
 
 4. Enable hot reloading
-<br>
-Run ```air```
+<br>Run ```air```
 
 5. Some util commands:
 - ```devbox run sql```: This will put you into the postgres container directly so you can do query there.
