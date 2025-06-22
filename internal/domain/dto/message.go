@@ -1,13 +1,17 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/craftaholic/insider/internal/domain/entity"
+)
 
 // MessageDTO represents a message for API responses
 // swagger:model
 type MessageDTO struct {
 	// Message ID
 	// example: 123
-	ID int `json:"id"`
+	ID uint64 `json:"id"`
 
 	// Phone Number
 	// example: +84338252331
@@ -27,7 +31,7 @@ type MessageDTO struct {
 
 	// Message status
 	// example: sent
-	Status string `json:"status"`
+	Status entity.MessageStatus `json:"status"`
 
 	// Message ID of the notification sent
 	// example: e975f171-3ce5-4ea4-bf03-ae5b8849d2cb

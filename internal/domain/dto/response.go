@@ -1,6 +1,6 @@
 package dto
 
-// StandardResponse represents a standard API response
+// StandardResponse represents a standard API response.
 type StandardResponse struct {
 	// Status of the operation
 	// example: OK
@@ -11,7 +11,7 @@ type StandardResponse struct {
 	Message string `json:"message"`
 }
 
-// ErrorResponse represents an error response
+// ErrorResponse represents an error response.
 type ErrorResponse struct {
 	// Error message
 	// example: Internal server error occurred
@@ -46,7 +46,7 @@ type ErrorResponseWrapper struct {
 	Body ErrorResponse `json:"body"`
 }
 
-// PaginatedMessagesResponse for future pagination metadata
+// PaginatedMessagesResponse for future pagination metadata.
 type PaginatedMessagesResponse struct {
 	// List of messages
 	Messages []MessageDTO `json:"messages"`
@@ -55,7 +55,7 @@ type PaginatedMessagesResponse struct {
 	Pagination PaginationMeta `json:"pagination"`
 }
 
-// PaginationMeta contains pagination information
+// PaginationMeta contains pagination information.
 type PaginationMeta struct {
 	// Current page number
 	// example: 1

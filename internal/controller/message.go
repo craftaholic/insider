@@ -2,10 +2,10 @@ package controller
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"strconv"
 
+	"github.com/craftaholic/insider/internal/domain/dto"
 	"github.com/craftaholic/insider/internal/domain/interfaces"
 	"github.com/craftaholic/insider/internal/shared/log"
 	"github.com/craftaholic/insider/internal/utils"
@@ -43,27 +43,12 @@ func (mc *MessageController) Start(w http.ResponseWriter, r *http.Request) {
 	// in the background.
 	err := mc.MessageUsecase.StartAutomatedSending(context.Background())
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger.Error("Request handled failed", "error", err.Error())
+		mc.sendErrorResponse(r.Context(), w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	// Return proper JSON response
-	response := map[string]string{"status": "OK", "message": "Automated sending started successfully"}
-	jsonResponse, err := json.Marshal(response)
-	if err != nil {
-		logger.Error("Failed to marshal response", "error", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		logger.Error("Failed writing response", "error", err)
-	}
+	response := dto.CreateStandardResponse("OK", "Automated sending started successfully")
+	mc.sendJSONResponse(r.Context(), w, response, http.StatusOK)
 	logger.Info("Finished start automated sending message request")
 }
 
@@ -88,27 +73,12 @@ func (mc *MessageController) Stop(w http.ResponseWriter, r *http.Request) {
 
 	err := mc.MessageUsecase.StopAutomatedSending(ctx)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger.Error("Request handled failed", "error", err.Error())
+		mc.sendErrorResponse(r.Context(), w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-
-	// Return proper JSON response
-	response := map[string]string{"status": "OK", "message": "Automated sending stopped successfully"}
-	jsonResponse, err := json.Marshal(response)
-	if err != nil {
-		logger.Error("Failed to marshal response", "error", err)
-		http.Error(w, "Internal server error", http.StatusInternalServerError)
-		return
-	}
-
-	_, err = w.Write(jsonResponse)
-	if err != nil {
-		logger.Error("Failed writing response", "error", err)
-	}
+	response := dto.CreateStandardResponse("OK", "Automated sending stopped successfully")
+	mc.sendJSONResponse(r.Context(), w, response, http.StatusOK)
 	logger.Info("Finished stop automated sending message request")
 }
 
@@ -140,39 +110,27 @@ func (mc *MessageController) GetSentMessagesWithPagination(w http.ResponseWriter
 		var err error
 		pageInt, err = strconv.Atoi(page)
 		if err != nil {
-			http.Error(w, "Invalid page number", http.StatusBadRequest)
-			logger.Error("Request handled failed", "error", err.Error())
+			mc.sendErrorResponse(ctx, w, "Invalid page number", http.StatusBadRequest)
 			return
 		}
 
 		// Validate page number is positive
 		if pageInt < 1 {
-			http.Error(w, "Page number must be greater than 0", http.StatusBadRequest)
-			logger.Error("Request handled failed", "error", "invalid page number")
+			mc.sendErrorResponse(ctx, w, "Page number must be greater than 0", http.StatusBadRequest)
 			return
 		}
 	}
 
+	// Get domain entities from usecase
 	messages, err := mc.MessageUsecase.GetSentMessagesWithPagination(ctx, pageInt)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		logger.Error("Request handled failed", "error", err.Error())
+		mc.sendErrorResponse(ctx, w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
+	// Convert domain entities to DTOs
+	messageDTOs := dto.ConvertMessagesToDTO(messages)
 
-	responseBody, err := json.Marshal(messages)
-	if err != nil {
-		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
-		logger.Error("Failed to marshal response", "error", err.Error())
-		return
-	}
-
-	_, err = w.Write(responseBody)
-	if err != nil {
-		logger.Error("Failed writing response", "error", err)
-	}
+	mc.sendJSONResponse(ctx, w, messageDTOs, http.StatusOK)
 	logger.Info("Finished getting sent messages with pagination request")
 }
