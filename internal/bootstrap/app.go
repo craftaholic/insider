@@ -3,11 +3,14 @@ package bootstrap
 import (
 	"context"
 	"fmt"
+	"math"
+	"time"
 
 	"github.com/craftaholic/insider/internal/controller"
 	"github.com/craftaholic/insider/internal/repository"
 	"github.com/craftaholic/insider/internal/usecase"
 	"github.com/go-redis/redis"
+	"github.com/go-resty/resty/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	gormlog "gorm.io/gorm/logger"
@@ -56,10 +59,34 @@ func App() Application {
 		),
 	})
 
+	// Init resty client
+	restyClient := resty.New()
+
+	// Configure built-in retry
+	restyClient.
+		SetRetryCount(3).                      // Max 3 retries
+		SetRetryWaitTime(1 * time.Second).     // Initial wait
+		SetRetryMaxWaitTime(10 * time.Second). // Max wait time
+		SetTimeout(30 * time.Second).          // Request timeout
+		AddRetryCondition(func(r *resty.Response, err error) bool {
+			// Retry on network errors
+			if err != nil {
+				return true
+			}
+			// Retry on specific HTTP status codes
+			return r.StatusCode() >= 500 || r.StatusCode() == 429 // Server errors or rate limit
+		}).
+		SetRetryAfter(func(client *resty.Client, resp *resty.Response) (time.Duration, error) {
+			// Custom backoff - exponential with jitter
+			retryCount := resp.Request.Attempt
+			backoff := time.Duration(math.Pow(2, float64(retryCount))) * time.Second
+			return backoff, nil
+		})
+
 	// Init Repository Layer
 	messageRepository := repository.NewMessageRepository(db)
 	cacheRepository := repository.NewCacheRepository(redisClient)
-	notificationService := repository.NewNotificationService(config.Env.WebhookAuthKey, config.Env.WebhookURL)
+	notificationService := repository.NewNotificationService(restyClient, config.Env.WebhookAuthKey, config.Env.WebhookURL)
 
 	// Init Usecase Layer
 	messageUsecase := usecase.NewMessageUsecase(messageRepository, cacheRepository, notificationService)

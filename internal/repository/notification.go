@@ -29,11 +29,11 @@ type NotificationService struct {
 	client   *resty.Client
 }
 
-func NewNotificationService(apiKey string, endPoint string) domain.NotificationService {
+func NewNotificationService(client *resty.Client, apiKey string, endPoint string) domain.NotificationService {
 	return &NotificationService{
 		apiKey:   apiKey,
 		endPoint: endPoint,
-		client:   resty.New(),
+		client:   client,
 	}
 }
 
@@ -51,7 +51,11 @@ func (ns *NotificationService) SendNotification(c context.Context, message domai
 		return "", err
 	}
 
-	response, webhookErr := utils.Post(ns.client, ns.apiKey, body, ns.endPoint)
+	response, webhookErr := ns.client.R().
+		SetHeader("Authorization", "Bearer "+ns.apiKey).
+		SetHeader("Content-Type", "application/json").
+		SetBody(body).
+		Post(ns.endPoint)
 	if webhookErr != nil {
 		logger.Error("Error sending notification", "error", err)
 		return "", webhookErr
