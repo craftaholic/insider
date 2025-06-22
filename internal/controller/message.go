@@ -70,10 +70,11 @@ func (mc *MessageController) GetSentMessagesWithPagination(w http.ResponseWriter
 	ctx := logger.WithCtx(r.Context())
 
 	page := r.URL.Query().Get("page")
-	// Default value
+	// Default value if page not declared
 	pageInt := 1
-	if page != "" { // Changed from page != nil to page != ""
-		var err error // Declare err here
+
+	if page != "" {
+		var err error
 		pageInt, err = strconv.Atoi(page)
 		if err != nil {
 			http.Error(w, "Invalid page number", http.StatusBadRequest)

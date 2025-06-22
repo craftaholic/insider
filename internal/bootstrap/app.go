@@ -86,7 +86,11 @@ func App() Application {
 	// Init Repository Layer
 	messageRepository := repository.NewMessageRepository(db)
 	cacheRepository := repository.NewCacheRepository(redisClient)
-	notificationService := repository.NewNotificationService(restyClient, config.Env.WebhookAuthKey, config.Env.WebhookURL)
+	notificationService := repository.NewNotificationService(
+		restyClient,
+		config.Env.WebhookAuthKey,
+		config.Env.WebhookURL,
+	)
 
 	// Init Usecase Layer
 	messageUsecase := usecase.NewMessageUsecase(messageRepository, cacheRepository, notificationService)

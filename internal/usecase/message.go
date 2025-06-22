@@ -79,7 +79,8 @@ func (mu *MessageUsecase) messageFetcher(c context.Context) {
 						message.Status = "pending"
 						err = mu.messageRepository.Update(c, message.ID, message)
 						if err != nil {
-							log.FromCtx(c).Error("Error changing status of message back to pending", "message", message.ID)
+							log.FromCtx(c).
+								Error("Error changing status of message back to pending", "message", message.ID)
 						}
 					}
 				}
@@ -160,7 +161,12 @@ func (mu *MessageUsecase) processSingleMessage(ctx context.Context, message doma
 	return nil
 }
 
-func (mu *MessageUsecase) handleMessageFailure(ctx context.Context, messageID uint64, reason string, originalErr error) {
+func (mu *MessageUsecase) handleMessageFailure(
+	ctx context.Context,
+	messageID uint64,
+	reason string,
+	originalErr error,
+) {
 	logger := log.FromCtx(ctx).WithFields("message_id", messageID)
 
 	updates := map[string]any{
