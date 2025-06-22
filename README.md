@@ -231,16 +231,16 @@ However, my code still supports it.
 - 2 mins cron
 - Each time process 2 messages in batch
 
-1. Application log
-<br>
+#### Application log
 ![Application Log](./docs/result-applog.png)
 
-1. Webhook.site log on notification received
-<br>
-![Notification Log](./docs/result-notification.png)
+#### Webhook.site log on notification received
 You can see it processes 2 messages every 2 mins
+![Notification Log](./docs/result-notification.png)
 
-1. Redis log
-<br>
+#### Redis log
 All messages is stored into redis
 ![Redis Log](./docs/result-redis.png)
+
+#### DB image
+![DB table](./docs/result-db.png)
