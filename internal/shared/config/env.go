@@ -77,13 +77,13 @@ func LoadEnv() {
 
 		// Concurency config
 		MessageBatchNumber:  getIntEnv("MESSAGE_BATCH_NUMBER", constant.ProducerDefaultBatchNumber),
-		MessageCronDuration: getIntEnv("MESSAGE_BATCH_NUMBER", constant.ProducerDefaultCronDuration),
+		MessageCronDuration: getIntEnv("MESSAGE_CRON_DURATION", constant.ProducerDefaultCronDuration),
 		WorkerCount:         getIntEnv("WORKER_COUNT", constant.WorkerDefaultCount),
 		WorkerChanBuffer:    getIntEnv("WORKER_CHAN_BUFFER", constant.WorkerDefaultChanBuffer),
 	}
 
-	logger.Info("Loaded Config", "AppEnv", env.AppEnv)
 	Env = env
+	logger.Info("Loaded Config", "Config", Env)
 }
 
 // getEnv gets an environment variable or returns a default value.
