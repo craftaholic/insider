@@ -73,11 +73,11 @@ func (mu *MessageUsecase) StartAutomatedSending(c context.Context) error {
 }
 
 func (mu *MessageUsecase) messageFetcher(c context.Context) {
-	ticker := time.NewTicker(time.Duration(mu.producerCronDuration) * time.Second)
-	defer ticker.Stop()
-
 	// Trigger the first time
 	mu.fetchMessages(c)
+
+	ticker := time.NewTicker(time.Duration(mu.producerCronDuration) * time.Second)
+	defer ticker.Stop()
 
 	for {
 		select {
@@ -85,8 +85,6 @@ func (mu *MessageUsecase) messageFetcher(c context.Context) {
 			return
 		case <-ticker.C:
 			mu.fetchMessages(c)
-		default:
-			continue
 		}
 	}
 }
