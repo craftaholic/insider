@@ -134,5 +134,9 @@ func App() Application {
 }
 
 func (app *Application) CloseDBConnection() {
-	// Close the connection
+	if app.db != nil {
+		sqlDB, _ := app.db.DB()
+		_ = sqlDB.Close()
+	}
+	_ = app.redisClient.Close()
 }
