@@ -1,22 +1,5 @@
 {
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
-  "schemes": [
-    "http",
-    "https"
-  ],
   "swagger": "2.0",
-  "info": {
-    "description": "Documentation for User API",
-    "title": "User API",
-    "version": "0.0.1"
-  },
-  "host": "localhost:8080",
-  "basePath": "/",
   "paths": {
     "/health": {
       "get": {
@@ -36,16 +19,53 @@
         }
       }
     },
+    "/message/sent": {
+      "get": {
+        "description": "Retrieves a paginated list of sent messages.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "message"
+        ],
+        "summary": "Get Sent Messages with Pagination",
+        "operationId": "getSentMessages",
+        "parameters": [
+          {
+            "minimum": 1,
+            "type": "integer",
+            "format": "int64",
+            "example": 1,
+            "x-go-name": "Page",
+            "description": "Page number for pagination",
+            "name": "page",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/responses/messagesResponse"
+          },
+          "400": {
+            "$ref": "#/responses/errorResponse"
+          },
+          "500": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    },
     "/message/start": {
       "get": {
-        "description": "# Returns the health status of the application",
-        "tags": [
-          "start",
-          "automated",
-          "notification"
+        "description": "This endpoint starts the automated message sending process.",
+        "produces": [
+          "application/json"
         ],
-        "summary": "Start automated Sending",
-        "operationId": "sending",
+        "tags": [
+          "message"
+        ],
+        "summary": "Start Automated Message Sending",
+        "operationId": "start",
         "responses": {
           "200": {
             "$ref": "#/responses/startResponse"
@@ -55,33 +75,165 @@
           }
         }
       }
+    },
+    "/message/stop": {
+      "post": {
+        "description": "This endpoint stops the automated message sending process.",
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "message"
+        ],
+        "summary": "Stop Automated Message Sending",
+        "operationId": "stop",
+        "responses": {
+          "200": {
+            "$ref": "#/responses/stopResponse"
+          },
+          "500": {
+            "$ref": "#/responses/errorResponse"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "title": "ErrorResponse represents an error response.",
+      "properties": {
+        "error": {
+          "description": "Error message",
+          "type": "string",
+          "x-go-name": "Error",
+          "example": "Internal server error occurred"
+        }
+      },
+      "x-go-package": "github.com/craftaholic/insider/internal/domain/dto"
+    },
+    "MessageDTO": {
+      "description": "MessageDTO represents a message for API responses",
+      "type": "object",
+      "properties": {
+        "content": {
+          "description": "Message content",
+          "type": "string",
+          "x-go-name": "Content",
+          "example": "Hello, this is a test message"
+        },
+        "created_at": {
+          "description": "Timestamp when message was created (ISO 8601 string)",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "CreatedAt",
+          "example": "2025-06-22T10:30:00Z"
+        },
+        "error_message": {
+          "description": "Error message if sending failed",
+          "type": "string",
+          "x-go-name": "ErrorMessage",
+          "example": "null"
+        },
+        "id": {
+          "description": "Message ID",
+          "type": "integer",
+          "format": "uint64",
+          "x-go-name": "ID",
+          "example": 123
+        },
+        "message_id": {
+          "description": "Message ID of the notification sent",
+          "type": "string",
+          "x-go-name": "MessageID",
+          "example": "e975f171-3ce5-4ea4-bf03-ae5b8849d2cb"
+        },
+        "phone_number": {
+          "description": "Phone Number",
+          "type": "string",
+          "x-go-name": "PhoneNumber",
+          "example": "+84338252331"
+        },
+        "sent_at": {
+          "description": "Timestamp when message was sent (ISO 8601 string, nullable)",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "SentAt",
+          "example": "2025-06-22T10:35:00Z"
+        },
+        "status": {
+          "$ref": "#/definitions/MessageStatus"
+        },
+        "updated_at": {
+          "description": "Updated At",
+          "type": "string",
+          "format": "date-time",
+          "x-go-name": "UpdatedAt",
+          "example": "2025-06-22T10:35:00Z"
+        }
+      },
+      "x-go-package": "github.com/craftaholic/insider/internal/domain/dto"
+    },
+    "MessageStatus": {
+      "type": "string",
+      "title": "MessageStatus represents the status enum.",
+      "x-go-package": "github.com/craftaholic/insider/internal/domain/entity"
+    },
+    "StandardResponse": {
+      "type": "object",
+      "title": "StandardResponse represents a standard API response.",
+      "properties": {
+        "message": {
+          "description": "Descriptive message",
+          "type": "string",
+          "x-go-name": "Message",
+          "example": "Operation completed successfully"
+        },
+        "status": {
+          "description": "Status of the operation",
+          "type": "string",
+          "x-go-name": "Status",
+          "example": "OK"
+        }
+      },
+      "x-go-package": "github.com/craftaholic/insider/internal/domain/dto"
     }
   },
   "responses": {
     "errorResponse": {
-      "description": "Error Response",
+      "description": "",
       "schema": {
-        "type": "object",
-        "properties": {
-          "error": {
-            "description": "Error message",
-            "type": "string",
-            "x-go-name": "Error"
-          }
-        }
+        "$ref": "#/definitions/ErrorResponse"
       }
     },
     "healthResponse": {
-      "description": "Health Check Response",
+      "description": "",
       "schema": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "description": "The status of the health check",
-            "type": "string",
-            "x-go-name": "Status"
-          }
+        "$ref": "#/definitions/StandardResponse"
+      }
+    },
+    "messagesResponse": {
+      "description": "",
+      "headers": {
+        "messages": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MessageDTO"
+          },
+          "description": "List of sent messages\nin: messages"
         }
+      }
+    },
+    "startResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/StandardResponse"
+      }
+    },
+    "stopResponse": {
+      "description": "",
+      "schema": {
+        "$ref": "#/definitions/StandardResponse"
       }
     }
   }

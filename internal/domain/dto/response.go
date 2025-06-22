@@ -32,6 +32,13 @@ type StopResponse struct {
 	Body StandardResponse `json:"body"`
 }
 
+// swagger:response healthResponse
+type HealthResponse struct {
+	// Success response for stop operation
+	// in: body
+	Body StandardResponse `json:"body"`
+}
+
 // swagger:response messagesResponse
 type MessagesResponse struct {
 	// List of sent messages
